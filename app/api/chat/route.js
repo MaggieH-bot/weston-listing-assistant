@@ -85,10 +85,9 @@ export async function POST(req) {
       tools: [{ type: "web_search" }],
     });
 
-    // TEMP: dump the real response shape so text/citation parsing can be
-    // written against it instead of guessed. Removed once confirmed.
-    console.log("WESTON_RAW_RESPONSE " + JSON.stringify(res));
-
+    // Verified against a live response: the Responses API returns the answer
+    // on res.output_text, and res.output[] carries one item per tool step -
+    // "web_search_call" for each search/open_page, plus "reasoning" items.
     const text = (res.output_text || "").trim();
 
     const searched = Boolean(
