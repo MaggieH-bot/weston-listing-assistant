@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 
 export default function Chat({ slug, listing }) {
@@ -16,6 +17,9 @@ export default function Chat({ slug, listing }) {
   }, [turns]);
 
   useEffect(() => {
+    // Don't auto-scroll the empty state, or the hero/price scroll out of view
+    // before anyone sees them. Only follow the conversation once it starts.
+    if (turns.length === 0) return;
     scroll.current?.scrollTo({
       top: scroll.current.scrollHeight,
       behavior: "smooth",
@@ -98,6 +102,19 @@ export default function Chat({ slug, listing }) {
           {turns.length === 0 ? (
             <div>
               <div className="pb-6 mb-6 border-b border-teal/12">
+                {listing.heroImage && (
+                  <div className="relative w-full h-56 sm:h-72 mb-6 rounded-2xl overflow-hidden bg-sage/15">
+                    <Image
+                      src={listing.heroImage}
+                      alt={`${listing.address}, ${listing.city}`}
+                      fill
+                      priority
+                      sizes="(max-width: 672px) 100vw, 672px"
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+
                 <h2 className="text-ink text-[26px] leading-tight">
                   {listing.address}
                 </h2>
@@ -123,6 +140,41 @@ export default function Chat({ slug, listing }) {
                   <p className="text-ink mt-5 leading-relaxed">{listing.openHouse}</p>
                 )}
               </div>
+
+              {listing.galleryImages?.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex gap-2 overflow-x-auto flex-nowrap pb-1">
+                    {listing.galleryImages.map((src, i) => (
+                      <div
+                        key={src}
+                        className="relative h-20 w-20 shrink-0 rounded-lg overflow-hidden bg-sage/15"
+                      >
+                        <Image
+                          src={src}
+                          alt={`${listing.address}, photo ${i + 2}`}
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {listing.fullGalleryUrl && (
+                    <a
+                      href={listing.fullGalleryUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-sans text-sm inline-block mt-3 underline underline-offset-2
+                                 decoration-teal/40 text-teal hover:text-tealdark
+                                 hover:decoration-tealdark transition rounded-sm
+                                 focus:outline-none focus-visible:ring-2 focus-visible:ring-olive"
+                    >
+                      View full photo gallery &rarr;
+                    </a>
+                  )}
+                </div>
+              )}
 
               <p className="text-teal leading-relaxed">
                 Hi, I&rsquo;m Weston &mdash; 15 West Homes&rsquo; listing assistant for

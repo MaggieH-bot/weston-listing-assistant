@@ -13,8 +13,11 @@ export function generateMetadata({ params }) {
   const title = `${l.address} — Weston`;
   const description = `Ask about ${l.address}, ${l.city}.`;
   // Placeholder card image. Swapped for a real listing photo once photos land.
+  // Purpose-built 1.91:1 card cropped from the hero photo. Social scrapers
+  // fetch this directly and do not go through next/image, so it has to be
+  // small on its own: the 6000x4000 original is 13.9MB, over FB/Twitter caps.
   const image = {
-    url: "https://weston-listing-assistant.vercel.app/og-image.jpg",
+    url: "https://weston-listing-assistant.vercel.app/og-hero.jpg",
     width: 1200,
     height: 630,
   };
