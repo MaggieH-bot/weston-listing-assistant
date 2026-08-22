@@ -3,6 +3,65 @@
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 
+// Weston's answers arrive as plain text that can contain three link forms:
+// search citations "[[1]](url)", ordinary markdown links, and bare URLs (the
+// prompt has him hand out the LCPS and Virginia school-quality links). Without
+// this they all render as literal punctuation. No markdown library: the only
+// syntax the model actually emits here is links.
+const LINK_RE =
+  /\[\[(\d+)\]\]\((https?:\/\/[^\s)]+)\)|\[([^\][]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s<>"')\]]*[^\s<>"')\].,;:!?])/g;
+
+const LINK_CLASS =
+  "underline underline-offset-2 decoration-teal/40 text-teal break-words " +
+  "hover:text-tealdark hover:decoration-tealdark transition rounded-sm " +
+  "focus:outline-none focus-visible:ring-2 focus-visible:ring-olive";
+
+function renderAnswer(text) {
+  const out = [];
+  let last = 0;
+  let key = 0;
+  let m;
+  LINK_RE.lastIndex = 0;
+  while ((m = LINK_RE.exec(text)) !== null) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    const [, citeNum, citeUrl, mdLabel, mdUrl, bareUrl] = m;
+    if (citeNum) {
+      // Citation: render the number as a small superscript chip, not "[[1]](...)".
+      out.push(
+        <a
+          key={key++}
+          href={citeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={citeUrl}
+          className="font-sans align-super text-[10px] leading-none ml-0.5 px-1 py-0.5
+                     rounded bg-teal/10 text-teal no-underline hover:bg-teal/20
+                     transition focus:outline-none focus-visible:ring-2
+                     focus-visible:ring-olive"
+        >
+          {citeNum}
+        </a>
+      );
+    } else {
+      const href = mdUrl || bareUrl;
+      out.push(
+        <a
+          key={key++}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={LINK_CLASS}
+        >
+          {mdLabel || bareUrl}
+        </a>
+      );
+    }
+    last = LINK_RE.lastIndex;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return out;
+}
+
 export default function Chat({ slug, listing }) {
   const [turns, setTurns] = useState([]);
   const [input, setInput] = useState("");
@@ -238,7 +297,7 @@ export default function Chat({ slug, listing }) {
                 <div className="max-w-[92%]">
                   <div className="w-8 h-px bg-olive mb-3" />
                   <p className="text-ink leading-[1.75] whitespace-pre-wrap">
-                    {t.text}
+                    {renderAnswer(t.text)}
                   </p>
                   {t.searched && (
                     <p className="font-sans text-teal text-[11px] mt-2">
