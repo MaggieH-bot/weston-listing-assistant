@@ -7,6 +7,7 @@ export default function Chat({ slug, listing }) {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [howOpen, setHowOpen] = useState(false);
   const scroll = useRef(null);
   const turnsRef = useRef([]);
 
@@ -64,14 +65,14 @@ export default function Chat({ slug, listing }) {
   }
 
   return (
-    <div className="min-h-screen w-full bg-paper flex flex-col font-serif">
+    <div className="h-dvh w-full bg-paper flex flex-col font-serif">
       <header className="border-b border-teal/15 bg-white px-5 py-4">
         <div className="max-w-2xl mx-auto flex items-center gap-3">
           <img src="/logo.png" alt="15 West Homes" className="h-9 w-auto shrink-0" />
           <div className="w-px h-8 bg-teal/15" />
           <div>
             <h1 className="text-teal text-xl leading-none">Weston</h1>
-            <p className="font-sans text-teal/55 text-[11px] mt-1 uppercase tracking-[0.1em]">
+            <p className="font-sans text-teal text-[11px] mt-1 uppercase tracking-[0.1em]">
               {listing.address} &middot; {listing.city.split(",")[0]}
             </p>
           </div>
@@ -79,14 +80,14 @@ export default function Chat({ slug, listing }) {
       </header>
 
       <main ref={scroll} className="flex-1 overflow-y-auto px-5 py-6">
-        <div className="max-w-2xl mx-auto space-y-5">
-          {turns.length === 0 && (
+        <div className="max-w-2xl mx-auto space-y-5" aria-live="polite">
+          {turns.length === 0 ? (
             <div>
               <div className="pb-6 mb-6 border-b border-teal/12">
                 <h2 className="text-ink text-[26px] leading-tight">
                   {listing.address}
                 </h2>
-                <p className="text-teal/70 mt-1">{listing.city}</p>
+                <p className="text-teal mt-1">{listing.city}</p>
                 <p className="text-ink text-[28px] mt-5">{listing.price}</p>
 
                 <div className="font-sans flex flex-wrap gap-x-5 gap-y-1 mt-3 text-teal text-sm">
@@ -99,7 +100,7 @@ export default function Chat({ slug, listing }) {
                   <span className="font-sans text-[11px] uppercase px-2.5 py-1 rounded bg-olive/12 text-olive tracking-[0.08em]">
                     {listing.status}
                   </span>
-                  <span className="font-sans text-teal/70 text-sm">
+                  <span className="font-sans text-teal text-sm">
                     {listing.statusNote}
                   </span>
                 </div>
@@ -109,9 +110,44 @@ export default function Chat({ slug, listing }) {
                 )}
               </div>
 
-              <p className="text-teal/80 leading-relaxed">
-                I can answer questions about the house. Ask me anything, or start here.
+              <p className="text-teal leading-relaxed">
+                Hi, I&rsquo;m Weston &mdash; 15 West Homes&rsquo; listing assistant for
+                this home. Ask me anything, or{" "}
+                <button
+                  type="button"
+                  onClick={() => setHowOpen((o) => !o)}
+                  aria-expanded={howOpen}
+                  aria-controls="weston-how"
+                  className="underline underline-offset-2 decoration-teal/40 text-teal
+                             hover:text-tealdark hover:decoration-tealdark transition
+                             rounded-sm focus:outline-none focus-visible:ring-2
+                             focus-visible:ring-olive"
+                >
+                  tap here to see how I work
+                </button>
+                .
               </p>
+
+              <div
+                id="weston-how"
+                aria-hidden={!howOpen}
+                className={`grid transition-all duration-200 ease-out ${
+                  howOpen
+                    ? "grid-rows-[1fr] opacity-100 mt-3"
+                    : "grid-rows-[0fr] opacity-0"
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <p className="text-ink/85 leading-relaxed border-l-2 border-sage/60 pl-4 py-1">
+                    I answer from the seller&rsquo;s verified facts for this listing
+                    &mdash; taxes, HOA dues, systems, schools, what&rsquo;s nearby. I
+                    won&rsquo;t guess, and I won&rsquo;t give opinions on the
+                    neighborhood, the schools, or what the house is worth. When I
+                    don&rsquo;t have something, I&rsquo;ll say so and connect you with
+                    Maggie.
+                  </p>
+                </div>
+              </div>
 
               <div className="mt-5 flex flex-wrap gap-2">
                 {listing.starters.map((s) => (
@@ -119,12 +155,26 @@ export default function Chat({ slug, listing }) {
                     key={s}
                     onClick={() => ask(s)}
                     className="font-sans text-sm px-3 py-1.5 rounded-full border border-teal/25
-                               text-teal/80 hover:bg-teal/5 transition
+                               text-teal hover:bg-teal/5 transition
                                focus:outline-none focus-visible:ring-2 focus-visible:ring-olive"
                   >
                     {s}
                   </button>
                 ))}
+              </div>
+            </div>
+          ) : (
+            <div
+              className="sticky -top-6 z-10 -mt-6 bg-paper pt-9 pb-3
+                         border-b border-teal/12"
+            >
+              <div className="flex items-baseline justify-between gap-4">
+                <h2 className="text-ink text-[15px] leading-tight truncate">
+                  {listing.address}
+                </h2>
+                <span className="text-ink text-[15px] shrink-0">
+                  {listing.price}
+                </span>
               </div>
             </div>
           )}
@@ -144,7 +194,7 @@ export default function Chat({ slug, listing }) {
                     {t.text}
                   </p>
                   {t.searched && (
-                    <p className="font-sans text-teal/45 text-[11px] mt-2">
+                    <p className="font-sans text-teal text-[11px] mt-2">
                       Looked this up just now
                     </p>
                   )}
@@ -182,10 +232,17 @@ export default function Chat({ slug, listing }) {
         </div>
       </main>
 
-      <footer className="border-t border-teal/15 bg-white px-5 py-4">
+      <footer
+        className="border-t border-teal/15 bg-white px-5 pt-4
+                   pb-[calc(1rem_+_env(safe-area-inset-bottom))]"
+      >
         <div className="max-w-2xl mx-auto">
           <div className="flex gap-2 items-end">
+            <label htmlFor="weston-input" className="sr-only">
+              Ask about the house
+            </label>
             <textarea
+              id="weston-input"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
@@ -197,7 +254,7 @@ export default function Chat({ slug, listing }) {
               rows={1}
               placeholder="Ask about the house"
               className="font-sans flex-1 resize-none rounded-xl border border-teal/25 px-4 py-3
-                         text-ink placeholder-teal/40 bg-paper text-[15px]
+                         text-ink placeholder-teal bg-paper text-[15px]
                          focus:outline-none focus:border-teal/60 leading-relaxed"
             />
             <button
@@ -212,7 +269,7 @@ export default function Chat({ slug, listing }) {
               &rarr;
             </button>
           </div>
-          <p className="font-sans text-teal/40 text-[11px] mt-3 leading-relaxed">
+          <p className="font-sans text-teal text-[11px] mt-3 leading-relaxed">
             Information deemed reliable but not guaranteed. Buyer to verify. Equal
             Housing Opportunity. 15 West Homes, brokered by Samson Properties.
           </p>
