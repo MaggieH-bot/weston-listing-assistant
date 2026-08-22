@@ -88,7 +88,10 @@ export async function POST(req) {
     // Verified against a live response: the Responses API returns the answer
     // on res.output_text, and res.output[] carries one item per tool step -
     // "web_search_call" for each search/open_page, plus "reasoning" items.
-    const text = (res.output_text || "").trim();
+    // Strip model control tokens. output_text can carry them through verbatim
+    // (seen: <|eos|>, <|tool_call_begin|>), and they render literally on the
+    // page mid-answer.
+    const text = (res.output_text || "").replace(/<\|[^|]*\|>/g, "").trim();
 
     const searched = Boolean(
       res.output?.some?.((o) => o?.type === "web_search_call")
