@@ -108,8 +108,17 @@ export async function POST(req) {
 
     const form = text.includes("[FORM]");
 
+    // Drop numbered citation markers "[[1]](url)" from the visible answer.
+    // Done here, after `searched` is computed above, so that check still sees
+    // them. Plain URLs Weston writes himself are left alone and still render
+    // as links.
+    const clean = text
+      .replace(/\s*\[\[\d+\]\]\(https?:\/\/[^\s)]+\)/g, "")
+      .replace(/\[FORM\]/g, "")
+      .trim();
+
     return Response.json({
-      text: text.replace(/\[FORM\]/g, "").trim(),
+      text: clean,
       form,
       searched,
     });

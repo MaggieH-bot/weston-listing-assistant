@@ -3,13 +3,13 @@
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 
-// Weston's answers arrive as plain text that can contain three link forms:
-// search citations "[[1]](url)", ordinary markdown links, and bare URLs (the
-// prompt has him hand out the LCPS and Virginia school-quality links). Without
-// this they all render as literal punctuation. No markdown library: the only
-// syntax the model actually emits here is links.
+// Weston's answers arrive as plain text that can contain ordinary markdown
+// links and bare URLs (the prompt has him hand out the LCPS and Virginia
+// school-quality links). Without this they render as literal punctuation.
+// No markdown library: the only syntax the model emits here is links.
+// Numbered citation markers are stripped server-side and never arrive.
 const LINK_RE =
-  /\[\[(\d+)\]\]\((https?:\/\/[^\s)]+)\)|\[([^\][]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s<>"')\]]*[^\s<>"')\].,;:!?])/g;
+  /\[([^\][]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s<>"')\]]*[^\s<>"')\].,;:!?])/g;
 
 const LINK_CLASS =
   "underline underline-offset-2 decoration-teal/40 text-teal break-words " +
@@ -24,38 +24,19 @@ function renderAnswer(text) {
   LINK_RE.lastIndex = 0;
   while ((m = LINK_RE.exec(text)) !== null) {
     if (m.index > last) out.push(text.slice(last, m.index));
-    const [, citeNum, citeUrl, mdLabel, mdUrl, bareUrl] = m;
-    if (citeNum) {
-      // Citation: render the number as a small superscript chip, not "[[1]](...)".
-      out.push(
-        <a
-          key={key++}
-          href={citeUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          title={citeUrl}
-          className="font-sans align-super text-[10px] leading-none ml-0.5 px-1 py-0.5
-                     rounded bg-teal/10 text-teal no-underline hover:bg-teal/20
-                     transition focus:outline-none focus-visible:ring-2
-                     focus-visible:ring-olive"
-        >
-          {citeNum}
-        </a>
-      );
-    } else {
-      const href = mdUrl || bareUrl;
-      out.push(
-        <a
-          key={key++}
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={LINK_CLASS}
-        >
-          {mdLabel || bareUrl}
-        </a>
-      );
-    }
+    const [, mdLabel, mdUrl, bareUrl] = m;
+    const href = mdUrl || bareUrl;
+    out.push(
+      <a
+        key={key++}
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={LINK_CLASS}
+      >
+        {mdLabel || bareUrl}
+      </a>
+    );
     last = LINK_RE.lastIndex;
   }
   if (last < text.length) out.push(text.slice(last));
@@ -68,12 +49,24 @@ export default function Chat({ slug, listing }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [howOpen, setHowOpen] = useState(false);
+  const [slow, setSlow] = useState(false);
   const scroll = useRef(null);
   const turnsRef = useRef([]);
 
   useEffect(() => {
     turnsRef.current = turns;
   }, [turns]);
+
+  // A search-backed answer can take several seconds. After a short delay the
+  // dots alone read as "stuck", so add a label saying work is happening.
+  useEffect(() => {
+    if (!busy) {
+      setSlow(false);
+      return;
+    }
+    const t = setTimeout(() => setSlow(true), 1500);
+    return () => clearTimeout(t);
+  }, [busy]);
 
   useEffect(() => {
     // Don't auto-scroll the empty state, or the hero/price scroll out of view
@@ -331,6 +324,11 @@ export default function Chat({ slug, listing }) {
                   style={{ animationDelay: `${i * 0.18}s` }}
                 />
               ))}
+              {slow && (
+                <span className="font-sans text-teal text-[13px] ml-2">
+                  Looking into it&hellip;
+                </span>
+              )}
             </div>
           )}
 
