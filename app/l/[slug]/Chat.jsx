@@ -67,15 +67,29 @@ export default function Chat({ slug, listing }) {
   return (
     <div className="h-dvh w-full bg-paper flex flex-col font-serif">
       <header className="border-b border-teal/15 bg-white px-5 py-4">
-        <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <img src="/logo.png" alt="15 West Homes" className="h-9 w-auto shrink-0" />
-          <div className="w-px h-8 bg-teal/15" />
-          <div>
-            <h1 className="text-teal text-xl leading-none">Weston</h1>
-            <p className="font-sans text-teal text-[11px] mt-1 uppercase tracking-[0.1em]">
-              {listing.address} &middot; {listing.city.split(",")[0]}
-            </p>
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="15 West Homes" className="h-9 w-auto shrink-0" />
+            <div className="w-px h-8 bg-teal/15" />
+            <div>
+              <h1 className="text-teal text-xl leading-none">Weston</h1>
+              <p className="font-sans text-teal text-[11px] mt-1 uppercase tracking-[0.1em]">
+                {listing.address} &middot; {listing.city.split(",")[0]}
+              </p>
+            </div>
           </div>
+
+          <a
+            href={listing.leadForm}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-sans inline-flex items-center gap-1.5 mt-4 px-4 py-2 rounded-lg
+                       bg-olive text-white text-sm hover:opacity-90 transition
+                       focus:outline-none focus-visible:ring-2
+                       focus-visible:ring-offset-2 focus-visible:ring-olive"
+          >
+            {listing.ctaLabel} &rarr;
+          </a>
         </div>
       </header>
 
@@ -269,6 +283,23 @@ export default function Chat({ slug, listing }) {
               &rarr;
             </button>
           </div>
+          <div className="font-sans text-[11px] mt-3 leading-relaxed">
+            <span className="text-ink">Maggie Hatfield, 15 West Homes</span>
+            <span className="text-teal"> &middot; </span>
+            <a
+              href="tel:+15712930334"
+              className="text-teal underline underline-offset-2 hover:text-tealdark
+                         rounded-sm focus:outline-none focus-visible:ring-2
+                         focus-visible:ring-olive"
+            >
+              571-293-0334
+            </a>
+            <span className="text-teal">
+              {" "}
+              &middot; VA Lic. #0225228923 &middot; MLS# {listing.mls}
+            </span>
+          </div>
+
           <p className="font-sans text-teal text-[11px] mt-3 leading-relaxed">
             Information deemed reliable but not guaranteed. Buyer to verify. Equal
             Housing Opportunity. 15 West Homes, brokered by Samson Properties.
