@@ -141,38 +141,19 @@ export default function Chat({ slug, listing }) {
                 )}
               </div>
 
-              {listing.galleryImages?.length > 0 && (
+              {listing.fullGalleryUrl && (
                 <div className="mb-6">
-                  <div className="flex gap-2 overflow-x-auto flex-nowrap pb-1">
-                    {listing.galleryImages.map((src, i) => (
-                      <div
-                        key={src}
-                        className="relative h-20 w-20 shrink-0 rounded-lg overflow-hidden bg-sage/15"
-                      >
-                        <Image
-                          src={src}
-                          alt={`${listing.address}, photo ${i + 2}`}
-                          fill
-                          sizes="80px"
-                          className="object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  {listing.fullGalleryUrl && (
-                    <a
-                      href={listing.fullGalleryUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-sans text-sm inline-block mt-3 underline underline-offset-2
-                                 decoration-teal/40 text-teal hover:text-tealdark
-                                 hover:decoration-tealdark transition rounded-sm
-                                 focus:outline-none focus-visible:ring-2 focus-visible:ring-olive"
-                    >
-                      View full photo gallery &rarr;
-                    </a>
-                  )}
+                  <a
+                    href={listing.fullGalleryUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-sans text-sm inline-block underline underline-offset-2
+                               decoration-teal/40 text-teal hover:text-tealdark
+                               hover:decoration-tealdark transition rounded-sm
+                               focus:outline-none focus-visible:ring-2 focus-visible:ring-olive"
+                  >
+                    View full photo gallery &rarr;
+                  </a>
                 </div>
               )}
 
