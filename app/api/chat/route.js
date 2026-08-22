@@ -80,7 +80,11 @@ export async function POST(req) {
       model: MODEL,
       max_tokens: 1000,
       messages: [{ role: "system", content: system }, ...trimmed],
-      tools: [{ type: "live_search" }],
+      // xAI rejects a bare live_search tool with "tools[0]: missing field
+      // `sources`". Source objects use the {type: "web"} shape from xAI's
+      // documented search_parameters. Scoping is by instruction in the
+      // prompt, not here.
+      tools: [{ type: "live_search", sources: [{ type: "web" }] }],
     });
 
     const choice = res.choices?.[0];
