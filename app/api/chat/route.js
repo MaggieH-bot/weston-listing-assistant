@@ -93,9 +93,18 @@ export async function POST(req) {
     // page mid-answer.
     const text = (res.output_text || "").replace(/<\|[^|]*\|>/g, "").trim();
 
-    const searched = Boolean(
-      res.output?.some?.((o) => o?.type === "web_search_call")
-    );
+    // Only claim a lookup when the answer actually cites one. Grok often runs
+    // a search internally even for questions the fact file already answers
+    // (taxes, for one), so "a web_search_call happened" over-reports badly.
+    //
+    // Keys on the citation marker form "[[1]](url)" - the same construct
+    // Chat.jsx's LINK_RE renders as a superscript chip - and NOT on "a URL
+    // appears". The fact file hands out bare LCPS and schoolquality.virginia
+    // .gov links for schools, so URL-presence would flag those as looked up.
+    const CITATION_RE = /\[\[\d+\]\]\(https?:\/\/[^\s)]+\)/;
+    const searched =
+      Boolean(res.output?.some?.((o) => o?.type === "web_search_call")) &&
+      CITATION_RE.test(text);
 
     const form = text.includes("[FORM]");
 
