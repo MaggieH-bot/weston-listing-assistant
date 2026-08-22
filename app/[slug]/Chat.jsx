@@ -102,13 +102,69 @@ export default function Chat({ slug, listing }) {
         }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "failed");
+      if (!res.ok) {
+        let msg = "failed";
+        try {
+          msg = (await res.json()).error || msg;
+        } catch {}
+        throw new Error(msg);
+      }
 
-      setTurns((t) => [
-        ...t,
-        { who: "weston", text: data.text, form: data.form, searched: data.searched },
-      ]);
+      // NDJSON stream: one JSON object per line. {delta} while the answer is
+      // being written, then a final {done, form, searched}.
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      let answer = "";
+      let started = false;
+
+      const pump = async () => {
+        for (;;) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buf += decoder.decode(value, { stream: true });
+          const lines = buf.split("\n");
+          buf = lines.pop() ?? "";
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            let msg;
+            try {
+              msg = JSON.parse(line);
+            } catch {
+              continue;
+            }
+            if (msg.error) throw new Error(msg.error);
+            if (msg.delta) {
+              answer += msg.delta;
+              if (!started) {
+                started = true;
+                setBusy(false);
+                setTurns((t) => [...t, { who: "weston", text: answer }]);
+              } else {
+                setTurns((t) =>
+                  t.map((turn, i) =>
+                    i === t.length - 1 ? { ...turn, text: answer } : turn
+                  )
+                );
+              }
+            }
+            if (msg.done) {
+              setTurns((t) =>
+                t.map((turn, i) =>
+                  i === t.length - 1
+                    ? { ...turn, text: answer, form: msg.form, searched: msg.searched }
+                    : turn
+                )
+              );
+            }
+          }
+        }
+      };
+      await pump();
+
+      if (!started) {
+        throw new Error("failed");
+      }
     } catch (e) {
       setErr(
         e.message && e.message !== "failed"

@@ -78,49 +78,88 @@ export async function POST(req) {
 
     // xAI Agent Tools API. Web search lives on /v1/responses, not on
     // chat/completions (web_search -> 422, live_search -> 410 deprecated).
-    const res = await xai.responses.create({
+    const stream = await xai.responses.create({
       model: MODEL,
       max_output_tokens: 1000,
       input: [{ role: "system", content: system }, ...trimmed],
       tools: [{ type: "web_search" }],
+      stream: true,
     });
 
-    // Verified against a live response: the Responses API returns the answer
-    // on res.output_text, and res.output[] carries one item per tool step -
-    // "web_search_call" for each search/open_page, plus "reasoning" items.
-    // Strip model control tokens. output_text can carry them through verbatim
-    // (seen: <|eos|>, <|tool_call_begin|>), and they render literally on the
-    // page mid-answer.
-    const text = (res.output_text || "").replace(/<\|[^|]*\|>/g, "").trim();
-
-    // Only claim a lookup when the answer actually cites one. Grok often runs
-    // a search internally even for questions the fact file already answers
-    // (taxes, for one), so "a web_search_call happened" over-reports badly.
-    //
-    // Keys on the citation marker form "[[1]](url)" - the same construct
-    // Chat.jsx's LINK_RE renders as a superscript chip - and NOT on "a URL
-    // appears". The fact file hands out bare LCPS and schoolquality.virginia
-    // .gov links for schools, so URL-presence would flag those as looked up.
+    // Cleanup applied to the running buffer. Same rules as before:
+    // control tokens (<|eos|>), numbered citations "[[1]](url)", [FORM].
     const CITATION_RE = /\[\[\d+\]\]\(https?:\/\/[^\s)]+\)/;
-    const searched =
-      Boolean(res.output?.some?.((o) => o?.type === "web_search_call")) &&
-      CITATION_RE.test(text);
+    const scrub = (t) =>
+      t
+        .replace(/<\|[^|]*\|>/g, "")
+        .replace(/\s*\[\[\d+\]\]\(https?:\/\/[^\s)]+\)/g, "")
+        .replace(/\[FORM\]/g, "");
 
-    const form = text.includes("[FORM]");
+    // Never emit a half-written marker. If the tail has an unclosed "[[",
+    // "<|" or "[FORM" we hold it back until the next delta completes it,
+    // otherwise the raw syntax flashes on screen before being scrubbed.
+    const holdBack = (t) => {
+      const cut = Math.max(
+        t.lastIndexOf("[["),
+        t.lastIndexOf("<|"),
+        t.lastIndexOf("[FORM")
+      );
+      if (cut === -1) return t;
+      const tail = t.slice(cut);
+      const closed =
+        /\[\[\d+\]\]\([^\s)]*\)/.test(tail) ||
+        /<\|[^|]*\|>/.test(tail) ||
+        /\[FORM\]/.test(tail);
+      return closed ? t : t.slice(0, cut);
+    };
 
-    // Drop numbered citation markers "[[1]](url)" from the visible answer.
-    // Done here, after `searched` is computed above, so that check still sees
-    // them. Plain URLs Weston writes himself are left alone and still render
-    // as links.
-    const clean = text
-      .replace(/\s*\[\[\d+\]\]\(https?:\/\/[^\s)]+\)/g, "")
-      .replace(/\[FORM\]/g, "")
-      .trim();
+    const encoder = new TextEncoder();
+    const body = new ReadableStream({
+      async start(controller) {
+        const send = (obj) =>
+          controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"));
+        let raw = "";
+        let sentLen = 0;
+        let sawSearchCall = false;
+        try {
+          for await (const event of stream) {
+            if (event.type === "response.output_text.delta" && event.delta) {
+              raw += event.delta;
+              const safe = holdBack(scrub(raw)).trimStart();
+              if (safe.length > sentLen) {
+                send({ delta: safe.slice(sentLen) });
+                sentLen = safe.length;
+              }
+            } else if (
+              event.type === "response.output_item.done" &&
+              event.item?.type === "web_search_call"
+            ) {
+              sawSearchCall = true;
+            }
+          }
+          // Flush anything held back, then the metadata the UI needs.
+          const finalText = scrub(raw).trim();
+          if (finalText.length > sentLen) {
+            send({ delta: finalText.slice(sentLen) });
+          }
+          send({
+            done: true,
+            form: raw.includes("[FORM]"),
+            searched: sawSearchCall && CITATION_RE.test(raw),
+          });
+        } catch (e) {
+          console.error("weston stream error", e);
+          send({ error: "Weston is unavailable right now. Try again in a moment." });
+        }
+        controller.close();
+      },
+    });
 
-    return Response.json({
-      text: clean,
-      form,
-      searched,
+    return new Response(body, {
+      headers: {
+        "Content-Type": "application/x-ndjson; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+      },
     });
   } catch (err) {
     console.error("weston chat error", err);
