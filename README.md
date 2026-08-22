@@ -23,16 +23,22 @@ cp .env.example .env
 npm run dev
 ```
 
-Open http://localhost:3000/l/15079-grace-place
+Open http://localhost:3000/15079-grace-place
 
 Runs on xAI's Grok API (`grok-4.6` by default, via the OpenAI-compatible
 `openai` SDK pointed at `https://api.x.ai/v1`), with Grok's built-in
 `web_search` tool for the same narrowly-scoped nearby-places lookups
 described below. Swap models with the `XAI_MODEL` env var.
 
-Every listing gets its own permanent link at `/l/<slug>` (for example
-`/l/15079-grace-place`), so the same deployment is reused listing to listing —
-new address, new slug, same URL pattern, share the new link.
+Every listing gets its own permanent link at `/<slug>` (for example
+https://ask.15westhomes.com/15079-grace-place), so the same deployment is
+reused listing to listing — new address, new slug, same URL pattern, share the
+new link. The old `/l/<slug>` paths 308-redirect to the new ones, so links
+already shared keep working.
+
+The canonical domain comes from `NEXT_PUBLIC_SITE_URL`, which is what the
+OpenGraph share card advertises. If the domain ever changes, set that env var
+rather than editing code.
 
 ## Deploy
 
@@ -55,7 +61,7 @@ Two things:
 2. An entry in `lib/listings.js` — address, price, specs, status, open house,
    the Lofty lead form URL, and the six starter questions.
 
-Then push. The listing is live at `/l/<slug>`.
+Then push. The listing is live at `/<slug>`.
 
 Weston's prompt in `lib/weston-prompt.txt` is shared across all listings and
 should not mention a specific property.

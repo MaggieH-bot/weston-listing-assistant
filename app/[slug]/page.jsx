@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getListing, LISTINGS } from "../../../lib/listings";
+import { getListing, LISTINGS } from "../../lib/listings";
 import Chat from "./Chat";
 
 export function generateStaticParams() {
@@ -9,7 +9,12 @@ export function generateStaticParams() {
 export function generateMetadata({ params }) {
   const l = getListing(params.slug);
   if (!l) return { title: "Weston" };
-  const url = `https://weston-listing-assistant.vercel.app/l/${params.slug}`;
+  // Set NEXT_PUBLIC_SITE_URL in Vercel once ask.15westhomes.com resolves.
+  // Falls back to the vercel.app domain so share cards never point nowhere.
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://weston-listing-assistant.vercel.app";
+  const url = `${base}/${params.slug}`;
   const title = `${l.address} — Weston`;
   const description = `Ask about ${l.address}, ${l.city}.`;
   // Placeholder card image. Swapped for a real listing photo once photos land.
@@ -17,7 +22,7 @@ export function generateMetadata({ params }) {
   // fetch this directly and do not go through next/image, so it has to be
   // small on its own: the 6000x4000 original is 13.9MB, over FB/Twitter caps.
   const image = {
-    url: "https://weston-listing-assistant.vercel.app/og-hero.jpg",
+    url: `${base}/og-hero.jpg`,
     width: 1200,
     height: 630,
   };
