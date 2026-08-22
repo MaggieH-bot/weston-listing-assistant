@@ -80,7 +80,7 @@ export async function POST(req) {
       model: MODEL,
       max_tokens: 1000,
       messages: [{ role: "system", content: system }, ...trimmed],
-      tools: [{ type: "web_search" }],
+      tools: [{ type: "live_search" }],
     });
 
     const choice = res.choices?.[0];
