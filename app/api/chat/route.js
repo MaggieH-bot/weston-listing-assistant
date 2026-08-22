@@ -76,29 +76,23 @@ export async function POST(req) {
       return Response.json({ error: "Unknown listing." }, { status: 404 });
     }
 
-    const res = await xai.chat.completions.create({
+    // xAI Agent Tools API. Web search lives on /v1/responses, not on
+    // chat/completions (web_search -> 422, live_search -> 410 deprecated).
+    const res = await xai.responses.create({
       model: MODEL,
-      max_tokens: 1000,
-      messages: [{ role: "system", content: system }, ...trimmed],
-      // NO SEARCH TOOL. chat/completions cannot do web search on xAI:
-      //   tools:[{type:"web_search"}]  -> 422 unknown variant
-      //   tools:[{type:"live_search"}] -> 422 missing field `sources`
-      //   ...+ sources:[{type:"web"}]  -> 410 "Live search is deprecated"
-      // Web search now requires client.responses.create() on /v1/responses
-      // (xAI Agent Tools API), which is a different call and response shape.
-      // Every request 422'd while this was set, so search has never actually
-      // run in production. Restoring plain chat until that migration happens.
+      max_output_tokens: 1000,
+      input: [{ role: "system", content: system }, ...trimmed],
+      tools: [{ type: "web_search" }],
     });
 
-    const choice = res.choices?.[0];
-    const text = (choice?.message?.content || "").trim();
+    // TEMP: dump the real response shape so text/citation parsing can be
+    // written against it instead of guessed. Removed once confirmed.
+    console.log("WESTON_RAW_RESPONSE " + JSON.stringify(res));
 
-    // xAI surfaces a server-side search either as citations on the response
-    // or as a tool call on the message, depending on SDK/model version.
-    // Check both so the "looked this up" note doesn't silently stop firing.
+    const text = (res.output_text || "").trim();
+
     const searched = Boolean(
-      (res.citations && res.citations.length) ||
-        (choice?.message?.tool_calls && choice.message.tool_calls.length)
+      res.output?.some?.((o) => o?.type === "web_search_call")
     );
 
     const form = text.includes("[FORM]");
