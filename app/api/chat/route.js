@@ -80,11 +80,14 @@ export async function POST(req) {
       model: MODEL,
       max_tokens: 1000,
       messages: [{ role: "system", content: system }, ...trimmed],
-      // xAI rejects a bare live_search tool with "tools[0]: missing field
-      // `sources`". Source objects use the {type: "web"} shape from xAI's
-      // documented search_parameters. Scoping is by instruction in the
-      // prompt, not here.
-      tools: [{ type: "live_search", sources: [{ type: "web" }] }],
+      // NO SEARCH TOOL. chat/completions cannot do web search on xAI:
+      //   tools:[{type:"web_search"}]  -> 422 unknown variant
+      //   tools:[{type:"live_search"}] -> 422 missing field `sources`
+      //   ...+ sources:[{type:"web"}]  -> 410 "Live search is deprecated"
+      // Web search now requires client.responses.create() on /v1/responses
+      // (xAI Agent Tools API), which is a different call and response shape.
+      // Every request 422'd while this was set, so search has never actually
+      // run in production. Restoring plain chat until that migration happens.
     });
 
     const choice = res.choices?.[0];
