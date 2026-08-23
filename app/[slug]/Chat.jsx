@@ -373,16 +373,6 @@ export default function Chat({ slug, listing }) {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setShowForm(true)}
-            className="font-sans inline-flex items-center gap-1.5 mt-4 px-4 py-2 rounded-lg
-                       bg-olive text-white text-sm hover:opacity-90 transition
-                       focus:outline-none focus-visible:ring-2
-                       focus-visible:ring-offset-2 focus-visible:ring-olive"
-          >
-            {listing.ctaLabel} &rarr;
-          </button>
         </div>
       </header>
 
