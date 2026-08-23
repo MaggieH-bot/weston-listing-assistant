@@ -15,7 +15,12 @@ const LOFTY_URL =
   "https://lofty.com/api/thirdparty-integration/realtor/digestNewLead";
 
 const RESEND_KEY = process.env.RESEND_API_KEY;
-const LEAD_TO = process.env.LEAD_TO || "info@15westhomes.com";
+// Comma-separated, so recipients can change in Vercel without a deploy.
+const LEAD_TO = (process.env.LEAD_TO ||
+  "info@15westhomes.com,charlie@15westhomes.com")
+  .split(",")
+  .map((a) => a.trim())
+  .filter(Boolean);
 const LEAD_FROM = process.env.LEAD_FROM || "Weston <onboarding@resend.dev>";
 
 const STAGES = [
@@ -169,7 +174,7 @@ export async function POST(req) {
       },
       body: JSON.stringify({
         from: LEAD_FROM,
-        to: [LEAD_TO],
+        to: LEAD_TO,
         reply_to: email,
         subject: `New lead from Weston - ${tag}`,
         text: body,
