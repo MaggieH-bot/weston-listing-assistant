@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer";
 import { getListing } from "../../../lib/listings";
 
 export const runtime = "nodejs";
@@ -14,13 +15,17 @@ const LOFTY_URL =
   process.env.LOFTY_WEBHOOK_URL ||
   "https://lofty.com/api/thirdparty-integration/realtor/digestNewLead";
 
+// Preferred: send as the 15 West Homes Google Workspace account. This sends
+// from your own domain to any recipient, so it needs no DNS records and is
+// not affected by Resend's unverified-domain restriction. Falls back to
+// Resend if the Gmail credentials are absent.
+const GMAIL_USER = process.env.GMAIL_USER;
+const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
+
 const RESEND_KEY = process.env.RESEND_API_KEY;
 // Comma-separated, so recipients can change in Vercel without a deploy.
 const LEAD_TO = (process.env.LEAD_TO ||
-  // Until 15westhomes.com is verified at resend.com/domains, Resend will
-  // only deliver to the account owner. Once verified, set LEAD_TO in
-  // Vercel to "info@15westhomes.com,charlie@15westhomes.com".
-  "maggie@15westhomes.com")
+  "info@15westhomes.com,charlie@15westhomes.com")
   .split(",")
   .map((a) => a.trim())
   .filter(Boolean);
@@ -157,6 +162,29 @@ export async function POST(req) {
       }
     } else {
       console.error("WESTON_LOFTY_SKIPPED: LOFTY_API_KEY is not set");
+    }
+
+    // ---- Gmail (preferred) ----
+    if (GMAIL_USER && GMAIL_APP_PASSWORD) {
+      try {
+        const transport = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 465,
+          secure: true,
+          auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
+        });
+        await transport.sendMail({
+          from: `Weston - 15 West Homes <${GMAIL_USER}>`,
+          to: LEAD_TO.join(", "),
+          replyTo: email,
+          subject: `New lead from Weston - ${tag}`,
+          text: body,
+        });
+        return Response.json({ ok: true });
+      } catch (e) {
+        console.error("WESTON_GMAIL_ERROR", e?.message);
+        // fall through to Resend
+      }
     }
 
     if (!RESEND_KEY) {
