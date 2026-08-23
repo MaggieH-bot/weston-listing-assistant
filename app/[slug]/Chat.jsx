@@ -122,7 +122,7 @@ function LeadForm({ slug, listing, onClose }) {
 
   return (
     <div className="pb-6 mb-6 border-b border-teal/12">
-      <div className="grid gap-5 sm:grid-cols-2 sm:items-start">
+      <div className="grid gap-5">
         {(listing.formImage || listing.heroImage) && (
           <div className="relative w-full aspect-[3/2] rounded-2xl overflow-hidden bg-sage/15">
             <Image
@@ -130,7 +130,7 @@ function LeadForm({ slug, listing, onClose }) {
               alt={`${listing.address}, ${listing.city}`}
               fill
               quality={90}
-              sizes="100vw"
+              sizes="(max-width: 672px) 100vw, 672px"
               className="object-cover"
             />
           </div>
