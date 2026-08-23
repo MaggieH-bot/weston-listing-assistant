@@ -110,7 +110,14 @@ export async function POST(req) {
     // The listing tag, so a lead is always attributable to a property.
     const tag = `${listing.address}, ${listing.city}`;
 
+    // Lead the email with what they actually asked for. The CTA promises a
+    // notification when showings open; nothing sends that automatically, so
+    // the email has to make the ask unmissable.
+    const asked = listing.ctaLabel || "Contact request";
     const lines = [
+      `ASKED FOR: ${asked}`,
+      listing.statusNote ? `(${listing.statusNote})` : null,
+      "",
       `Listing: ${tag}`,
       listing.mls ? `MLS#: ${listing.mls}` : null,
       "",
@@ -184,7 +191,7 @@ export async function POST(req) {
           from: `Weston - 15 West Homes <${GMAIL_USER}>`,
           to: LEAD_TO.join(", "),
           replyTo: email,
-          subject: `New lead from Weston - ${tag}`,
+          subject: `${asked} - ${name} - ${listing.address}`,
           text: body,
         });
         return Response.json({ ok: true });
@@ -214,7 +221,7 @@ export async function POST(req) {
         from: LEAD_FROM,
         to: RESEND_TO,
         reply_to: email,
-        subject: `New lead from Weston - ${tag}`,
+        subject: `${asked} - ${name} - ${listing.address}`,
         text: body,
       }),
     });
