@@ -414,6 +414,16 @@ export default function Chat({ slug, listing }) {
             </div>
           </div>
 
+          <button
+            type="button"
+            onClick={() => setShowForm(true)}
+            className="font-sans inline-flex items-center gap-1.5 mt-4 px-4 py-2 rounded-lg
+                       bg-olive text-white text-sm hover:opacity-90 transition
+                       focus:outline-none focus-visible:ring-2
+                       focus-visible:ring-offset-2 focus-visible:ring-olive"
+          >
+            {listing.ctaLabel} &rarr;
+          </button>
         </div>
       </header>
 
@@ -448,7 +458,12 @@ export default function Chat({ slug, listing }) {
                   {listing.address}
                 </h2>
                 <p className="text-teal mt-1">{listing.city}</p>
-                <p className="text-ink text-[28px] mt-5">{listing.price}</p>
+                <p className="text-ink mt-5">
+                  <span className="font-sans text-teal text-[11px] uppercase tracking-[0.1em] block mb-1">
+                    List Price
+                  </span>
+                  <span className="text-[28px]">{listing.price}</span>
+                </p>
 
                 <div className="font-sans flex flex-wrap gap-x-5 gap-y-1 mt-3 text-teal text-sm">
                   {listing.specs.map((s) => (
