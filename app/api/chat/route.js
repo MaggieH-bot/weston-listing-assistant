@@ -104,22 +104,27 @@ export async function POST(req) {
         .replace(/\s*\[\[\d+\]\]\(https?:\/\/[^\s)]+\)/g, "")
         .replace(/\[FORM\]/g, "");
 
-    // Never emit a half-written marker. If the tail has an unclosed "[[",
-    // "<|" or "[FORM" we hold it back until the next delta completes it,
-    // otherwise the raw syntax flashes on screen before being scrubbed.
+    // Never emit a half-written marker. Deltas split mid-token, so "[FORM]"
+    // arrives as "[" then "FORM]" and a citation as "[[" ... "(url)". Emitting
+    // the opening fragment strands it on screen once the complete token is
+    // scrubbed from the buffer. Scan back for the earliest token that has
+    // opened but not closed, and hold everything from there.
     const holdBack = (t) => {
-      const cut = Math.max(
-        t.lastIndexOf("[["),
-        t.lastIndexOf("<|"),
-        t.lastIndexOf("[FORM")
-      );
-      if (cut === -1) return t;
-      const tail = t.slice(cut);
-      const closed =
-        /\[\[\d+\]\]\([^\s)]*\)/.test(tail) ||
-        /<\|[^|]*\|>/.test(tail) ||
-        /\[FORM\]/.test(tail);
-      return closed ? t : t.slice(0, cut);
+      const from = Math.max(0, t.length - 200);
+      for (let i = from; i < t.length; i++) {
+        const tail = t.slice(i);
+        if (tail.startsWith("[[")) {
+          if (!/^\[\[\d+\]\]\([^\s)]*\)/.test(tail)) return t.slice(0, i).replace(/\s+$/, "");
+          continue;
+        }
+        if (tail.startsWith("<|")) {
+          if (!tail.includes("|>")) return t.slice(0, i).replace(/\s+$/, "");
+          continue;
+        }
+        if (tail[0] === "[" && "[FORM]".startsWith(tail)) return t.slice(0, i).replace(/\s+$/, "");
+        if (tail === "<") return t.slice(0, i).replace(/\s+$/, "");
+      }
+      return t;
     };
 
     const encoder = new TextEncoder();

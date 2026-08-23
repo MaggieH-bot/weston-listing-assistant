@@ -156,7 +156,15 @@ export default function Chat({ slug, listing }) {
               setTurns((t) =>
                 t.map((turn, i) =>
                   i === t.length - 1
-                    ? { ...turn, text: answer, form: msg.form, searched: msg.searched }
+                    ? {
+                        ...turn,
+                        // trimEnd: whitespace ahead of a [FORM] token is sent
+                        // before the token is recognised, so it cannot be
+                        // retracted server-side. Tidy it on the final frame.
+                        text: answer.trimEnd(),
+                        form: msg.form,
+                        searched: msg.searched,
+                      }
                     : turn
                 )
               );
