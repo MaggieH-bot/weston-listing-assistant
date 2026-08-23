@@ -46,6 +46,16 @@ const STAGES = [
   "Just curious about the neighborhood",
 ];
 
+const PRICES = [
+  "Under $600k",
+  "$600k - $800k",
+  "$800k - $1M",
+  "$1M - $1.25M",
+  "$1.25M - $1.5M",
+  "$1.5M+",
+  "Not sure yet",
+];
+
 // Same in-memory limiter shape as the chat route.
 const hits = new Map();
 const WINDOW = 60 * 60 * 1000;
@@ -86,6 +96,9 @@ export async function POST(req) {
     const email = clean(b.email, 200);
     const phone = clean(b.phone, 40);
     const stage = STAGES.includes(b.stage) ? b.stage : "";
+    const price = PRICES.includes(b.price) ? b.price : "";
+    const areas = clean(b.areas, 300);
+    const autoSearch = b.autoSearch === true;
     const consent = b.consent === true;
 
     if (!name || !email) {
@@ -118,13 +131,17 @@ export async function POST(req) {
       `ASKED FOR: ${asked}`,
       listing.statusNote ? `(${listing.statusNote})` : null,
       "",
-      `Listing: ${tag}`,
+      `Signed in at: ${tag}`,
       listing.mls ? `MLS#: ${listing.mls}` : null,
       "",
       `Name:  ${name}`,
       `Email: ${email}`,
       `Phone: ${phone || "(not given)"}`,
-      `Stage: ${stage || "(not given)"}`,
+      "",
+      `Stage of their search: ${stage || "(not given)"}`,
+      `Areas they are looking:  ${areas || "(not given)"}`,
+      `Price point:             ${price || "(not given)"}`,
+      `Wants an automatic search set up: ${autoSearch ? "YES" : "no"}`,
       "",
       `Phone contact consent: ${consent ? "YES" : "no"}`,
       `Submitted: ${new Date().toISOString()}`,

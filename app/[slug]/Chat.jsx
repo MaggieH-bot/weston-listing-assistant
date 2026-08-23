@@ -51,12 +51,25 @@ const STAGES = [
   "Just curious about the neighborhood",
 ];
 
+const PRICES = [
+  "Under $600k",
+  "$600k - $800k",
+  "$800k - $1M",
+  "$1M - $1.25M",
+  "$1.25M - $1.5M",
+  "$1.5M+",
+  "Not sure yet",
+];
+
 function LeadForm({ slug, listing, onClose }) {
   const [f, setF] = useState({
     name: "",
     email: "",
     phone: "",
     stage: "",
+    areas: "",
+    price: "",
+    autoSearch: false,
     consent: false,
   });
   const [sending, setSending] = useState(false);
@@ -125,7 +138,7 @@ function LeadForm({ slug, listing, onClose }) {
       <div className="grid gap-5">
         <form onSubmit={submit} className="font-sans">
           <h2 className="font-serif text-ink text-[22px] leading-tight">
-            Get notified when showings open
+            Open house sign-in
           </h2>
           <p className="text-teal text-sm mt-1 leading-relaxed">
             {listing.address}
@@ -151,17 +164,45 @@ function LeadForm({ slug, listing, onClose }) {
             </div>
             <div>
               <label htmlFor="lead-stage" className="sr-only">
-                Where are you in your home search?
+                What stage of the process are you in?
               </label>
               <select id="lead-stage" value={f.stage} onChange={set("stage")}
                 className={field + " appearance-none"}>
-                <option value="">Where are you in your home search?</option>
+                <option value="">What stage of the process are you in?</option>
                 {STAGES.map((o) => (
                   <option key={o} value={o}>{o}</option>
                 ))}
               </select>
             </div>
+            <div>
+              <label htmlFor="lead-areas" className="sr-only">
+                What areas are you looking at?
+              </label>
+              <input id="lead-areas" value={f.areas} onChange={set("areas")}
+                placeholder="What areas are you looking at?" className={field} />
+            </div>
+            <div>
+              <label htmlFor="lead-price" className="sr-only">
+                What price point?
+              </label>
+              <select id="lead-price" value={f.price} onChange={set("price")}
+                className={field + " appearance-none"}>
+                <option value="">What price point?</option>
+                {PRICES.map((o) => (
+                  <option key={o} value={o}>{o}</option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          <label className="flex gap-2.5 mt-4 text-ink text-sm leading-relaxed">
+            <input type="checkbox" checked={f.autoSearch} onChange={set("autoSearch")}
+              className="mt-0.5 shrink-0 accent-olive" />
+            <span>
+              Set me up with an automatic search that monitors new listings in
+              the areas I am interested in.
+            </span>
+          </label>
 
           <label className="flex gap-2.5 mt-4 text-teal text-[11px] leading-relaxed">
             <input type="checkbox" checked={f.consent} onChange={set("consent")}
