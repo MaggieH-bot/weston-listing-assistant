@@ -83,6 +83,11 @@ export async function POST(req) {
       max_output_tokens: 1000,
       input: [{ role: "system", content: system }, ...trimmed],
       tools: [{ type: "web_search" }],
+      // Hard cap, because the prompt alone does not hold. Left uncapped it
+      // ran 8-10 searches on a single question, chasing each business one at
+      // a time, and the person waited a minute. The first search or two is
+      // what actually answers; the rest is padding with a latency cost.
+      max_tool_calls: 3,
       stream: true,
     });
 
