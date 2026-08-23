@@ -123,10 +123,10 @@ function LeadForm({ slug, listing, onClose }) {
   return (
     <div className="pb-6 mb-6 border-b border-teal/12">
       <div className="grid gap-5 sm:grid-cols-2 sm:items-start">
-        {listing.heroImage && (
+        {(listing.formImage || listing.heroImage) && (
           <div className="relative w-full h-40 sm:h-full sm:min-h-[19rem] rounded-2xl overflow-hidden bg-sage/15">
             <Image
-              src={listing.heroImage}
+              src={listing.formImage || listing.heroImage}
               alt={`${listing.address}, ${listing.city}`}
               fill
               sizes="(max-width: 640px) 100vw, 320px"
