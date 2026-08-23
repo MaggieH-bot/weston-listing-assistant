@@ -130,7 +130,7 @@ function LeadForm({ slug, listing, onClose }) {
               alt={`${listing.address}, ${listing.city}`}
               fill
               quality={90}
-              sizes="(max-width: 640px) 100vw, 800px"
+              sizes="(max-width: 640px) 200vw, 1600px"
               className="object-cover"
             />
           </div>
