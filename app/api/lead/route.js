@@ -129,10 +129,11 @@ export async function POST(req) {
       try {
         const lr = await fetch(LOFTY_URL, {
           method: "POST",
+          // x-api-key is the one Lofty accepts. Authorization: Bearer,
+          // apiKey, token, and query-string variants all return 401.
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${LOFTY_KEY}`,
-            apikey: LOFTY_KEY,
+            "x-api-key": LOFTY_KEY,
           },
           body: JSON.stringify(payload),
         });
