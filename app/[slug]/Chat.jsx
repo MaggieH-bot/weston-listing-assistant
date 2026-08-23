@@ -43,6 +43,174 @@ function renderAnswer(text) {
   return out;
 }
 
+const STAGES = [
+  "Just starting to look",
+  "Actively touring homes",
+  "Ready to make an offer",
+  "Already working with an agent",
+  "Just curious about the neighborhood",
+];
+
+function LeadForm({ slug, listing, onClose }) {
+  const [f, setF] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    stage: "",
+    consent: false,
+  });
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [err, setErr] = useState("");
+
+  const set = (k) => (e) =>
+    setF((v) => ({
+      ...v,
+      [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value,
+    }));
+
+  async function submit(e) {
+    e.preventDefault();
+    if (sending) return;
+    setErr("");
+    setSending(true);
+    try {
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, ...f }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Something went wrong.");
+      setSent(true);
+    } catch (e2) {
+      setErr(e2.message);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  const field =
+    "font-sans w-full rounded-xl border border-teal/25 px-3 py-2.5 text-ink " +
+    "placeholder-teal bg-paper text-[15px] focus:outline-none focus:border-teal/60";
+
+  if (sent) {
+    return (
+      <div className="pb-6 mb-6 border-b border-teal/12">
+        <h2 className="text-ink text-[22px] leading-tight">Thank you.</h2>
+        <p className="text-teal mt-2 leading-relaxed">
+          That went straight to Maggie. She'll be in touch about{" "}
+          {listing.address}. If you need her sooner, call{" "}
+          <a href="tel:+15712930334" className={LINK_CLASS}>
+            571-293-0334
+          </a>
+          .
+        </p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="font-sans text-sm mt-4 underline underline-offset-2
+                     decoration-teal/40 text-teal hover:text-tealdark transition
+                     rounded-sm focus:outline-none focus-visible:ring-2
+                     focus-visible:ring-olive"
+        >
+          Back to the listing
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pb-6 mb-6 border-b border-teal/12">
+      <div className="grid gap-5 sm:grid-cols-2 sm:items-start">
+        {listing.heroImage && (
+          <div className="relative w-full h-40 sm:h-full sm:min-h-[19rem] rounded-2xl overflow-hidden bg-sage/15">
+            <Image
+              src={listing.heroImage}
+              alt={`${listing.address}, ${listing.city}`}
+              fill
+              sizes="(max-width: 640px) 100vw, 320px"
+              className="object-cover"
+            />
+          </div>
+        )}
+
+        <form onSubmit={submit} className="font-sans">
+          <h2 className="font-serif text-ink text-[22px] leading-tight">
+            Get notified when showings open
+          </h2>
+          <p className="text-teal text-sm mt-1 leading-relaxed">
+            {listing.address}
+          </p>
+
+          <div className="mt-4 space-y-3">
+            <div>
+              <label htmlFor="lead-name" className="sr-only">Your name</label>
+              <input id="lead-name" required value={f.name} onChange={set("name")}
+                placeholder="Your name" className={field} autoComplete="name" />
+            </div>
+            <div>
+              <label htmlFor="lead-email" className="sr-only">Email</label>
+              <input id="lead-email" required type="email" value={f.email}
+                onChange={set("email")} placeholder="Email" className={field}
+                autoComplete="email" inputMode="email" />
+            </div>
+            <div>
+              <label htmlFor="lead-phone" className="sr-only">Phone (optional)</label>
+              <input id="lead-phone" type="tel" value={f.phone} onChange={set("phone")}
+                placeholder="Phone (optional)" className={field}
+                autoComplete="tel" inputMode="tel" />
+            </div>
+            <div>
+              <label htmlFor="lead-stage" className="sr-only">
+                Where are you in your home search?
+              </label>
+              <select id="lead-stage" value={f.stage} onChange={set("stage")}
+                className={field + " appearance-none"}>
+                <option value="">Where are you in your home search?</option>
+                {STAGES.map((o) => (
+                  <option key={o} value={o}>{o}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <label className="flex gap-2.5 mt-4 text-teal text-[11px] leading-relaxed">
+            <input type="checkbox" checked={f.consent} onChange={set("consent")}
+              className="mt-0.5 shrink-0 accent-olive" />
+            <span>
+              By checking this box, I agree by electronic signature to receive
+              recurring marketing communication from or on behalf of Maggie
+              Hatfield, including auto-dialed calls, texts, and prerecorded
+              messages (consent not required to make a purchase; data rates may
+              apply; reply STOP to opt-out of texts or HELP for help). I
+              understand that I can call 571-293-0334 to obtain direct assistance.
+            </span>
+          </label>
+
+          {err && <p className="text-teal text-sm mt-3">{err}</p>}
+
+          <div className="flex items-center gap-4 mt-5">
+            <button type="submit" disabled={sending}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg
+                         bg-olive text-white text-sm hover:opacity-90 transition
+                         disabled:opacity-40 focus:outline-none focus-visible:ring-2
+                         focus-visible:ring-offset-2 focus-visible:ring-olive">
+              {sending ? "Sending\u2026" : "Send to Maggie"}
+            </button>
+            <button type="button" onClick={onClose}
+              className="text-sm underline underline-offset-2 decoration-teal/40
+                         text-teal hover:text-tealdark transition rounded-sm
+                         focus:outline-none focus-visible:ring-2 focus-visible:ring-olive">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function Chat({ slug, listing }) {
   const [turns, setTurns] = useState([]);
   const [input, setInput] = useState("");
@@ -51,6 +219,7 @@ export default function Chat({ slug, listing }) {
   const [howOpen, setHowOpen] = useState(false);
   const [slow, setSlow] = useState(false);
   const [status, setStatus] = useState("");
+  const [showForm, setShowForm] = useState(false);
   const scroll = useRef(null);
   const turnsRef = useRef([]);
 
@@ -203,22 +372,29 @@ export default function Chat({ slug, listing }) {
             </div>
           </div>
 
-          <a
-            href={listing.leadForm}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => setShowForm(true)}
             className="font-sans inline-flex items-center gap-1.5 mt-4 px-4 py-2 rounded-lg
                        bg-olive text-white text-sm hover:opacity-90 transition
                        focus:outline-none focus-visible:ring-2
                        focus-visible:ring-offset-2 focus-visible:ring-olive"
           >
             {listing.ctaLabel} &rarr;
-          </a>
+          </button>
         </div>
       </header>
 
       <main ref={scroll} className="flex-1 overflow-y-auto px-5 py-6">
         <div className="max-w-2xl mx-auto space-y-5" aria-live="polite">
+          {showForm && (
+            <LeadForm
+              slug={slug}
+              listing={listing}
+              onClose={() => setShowForm(false)}
+            />
+          )}
+
           {turns.length === 0 ? (
             <div>
               <div className="pb-6 mb-6 border-b border-teal/12">
@@ -366,17 +542,16 @@ export default function Chat({ slug, listing }) {
                     </p>
                   )}
                   {t.form && (
-                    <a
-                      href={listing.leadForm}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => setShowForm(true)}
                       className="font-sans inline-flex items-center gap-1.5 mt-4 px-4 py-2 rounded-lg
                                  bg-olive text-white text-sm hover:opacity-90 transition
                                  focus:outline-none focus-visible:ring-2
                                  focus-visible:ring-offset-2 focus-visible:ring-olive"
                     >
                       Send us your question &rarr;
-                    </a>
+                    </button>
                   )}
                 </div>
               )}
