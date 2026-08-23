@@ -23,6 +23,13 @@ const GMAIL_USER = process.env.GMAIL_USER;
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
 
 const RESEND_KEY = process.env.RESEND_API_KEY;
+// Resend will not deliver to other recipients until 15westhomes.com is
+// verified there, so the fallback path sends only to the account owner.
+// Gmail (above) has no such restriction and reaches everyone in LEAD_TO.
+const RESEND_TO = (process.env.RESEND_TO || "maggie@15westhomes.com")
+  .split(",")
+  .map((a) => a.trim())
+  .filter(Boolean);
 // Comma-separated, so recipients can change in Vercel without a deploy.
 const LEAD_TO = (process.env.LEAD_TO ||
   "info@15westhomes.com,charlie@15westhomes.com")
@@ -205,7 +212,7 @@ export async function POST(req) {
       },
       body: JSON.stringify({
         from: LEAD_FROM,
-        to: LEAD_TO,
+        to: RESEND_TO,
         reply_to: email,
         subject: `New lead from Weston - ${tag}`,
         text: body,
