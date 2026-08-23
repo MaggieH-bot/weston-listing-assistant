@@ -123,19 +123,6 @@ function LeadForm({ slug, listing, onClose }) {
   return (
     <div className="pb-6 mb-6 border-b border-teal/12">
       <div className="grid gap-5">
-        {(listing.formImage || listing.heroImage) && (
-          <div className="relative w-full aspect-[3/2] rounded-2xl overflow-hidden bg-sage/15">
-            <Image
-              src={listing.formImage || listing.heroImage}
-              alt={`${listing.address}, ${listing.city}`}
-              fill
-              quality={90}
-              sizes="(max-width: 672px) 100vw, 672px"
-              className="object-cover"
-            />
-          </div>
-        )}
-
         <form onSubmit={submit} className="font-sans">
           <h2 className="font-serif text-ink text-[22px] leading-tight">
             Get notified when showings open
@@ -207,6 +194,19 @@ function LeadForm({ slug, listing, onClose }) {
             </button>
           </div>
         </form>
+
+        {(listing.formImage || listing.heroImage) && (
+          <div className="relative w-full aspect-[3/2] rounded-2xl overflow-hidden bg-sage/15">
+            <Image
+              src={listing.formImage || listing.heroImage}
+              alt={`${listing.address}, ${listing.city}`}
+              fill
+              quality={90}
+              sizes="(max-width: 672px) 100vw, 672px"
+              className="object-cover"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
