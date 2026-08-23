@@ -17,7 +17,10 @@ const LOFTY_URL =
 const RESEND_KEY = process.env.RESEND_API_KEY;
 // Comma-separated, so recipients can change in Vercel without a deploy.
 const LEAD_TO = (process.env.LEAD_TO ||
-  "info@15westhomes.com,charlie@15westhomes.com")
+  // Until 15westhomes.com is verified at resend.com/domains, Resend will
+  // only deliver to the account owner. Once verified, set LEAD_TO in
+  // Vercel to "info@15westhomes.com,charlie@15westhomes.com".
+  "maggie@15westhomes.com")
   .split(",")
   .map((a) => a.trim())
   .filter(Boolean);
