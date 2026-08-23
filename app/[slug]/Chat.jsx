@@ -439,6 +439,38 @@ export default function Chat({ slug, listing }) {
                 )}
               </div>
 
+              {listing.floorPlans?.length > 0 && (
+                <div className="mb-6">
+                  <p className="font-sans text-teal text-sm mb-2">Floor plans</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {listing.floorPlans.map((fp) => (
+                      <a
+                        key={fp.src}
+                        href={fp.src}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group rounded-lg overflow-hidden border border-teal/25
+                                   focus:outline-none focus-visible:ring-2 focus-visible:ring-olive"
+                      >
+                        <span className="relative block w-full aspect-[3/2] bg-white">
+                          <Image
+                            src={fp.src}
+                            alt={`${listing.address} floor plan, ${fp.label}`}
+                            fill
+                            sizes="(max-width: 672px) 33vw, 220px"
+                            className="object-contain p-1"
+                          />
+                        </span>
+                        <span className="font-sans block text-teal text-[11px] px-2 py-1.5
+                                         border-t border-teal/15 group-hover:bg-teal/5 transition">
+                          {fp.label}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {listing.fullGalleryUrl && (
                 <div className="mb-6">
                   <a
