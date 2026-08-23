@@ -87,7 +87,11 @@ export async function POST(req) {
       // ran 8-10 searches on a single question, chasing each business one at
       // a time, and the person waited a minute. The first search or two is
       // what actually answers; the rest is padding with a latency cost.
+      // max_tool_calls is in xAI's response schema but is NOT honoured on
+      // the request - capped at 3 it still ran 7 searches. Kept as intent.
       max_tool_calls: 3,
+      // Most of the wait is reasoning before the first tool call (~16s).
+      reasoning: { effort: "low" },
       stream: true,
     });
 
