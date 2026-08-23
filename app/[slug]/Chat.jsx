@@ -648,13 +648,13 @@ export default function Chat({ slug, listing }) {
 
       {!showForm && (
       <footer
-        className="border-t border-teal/15 bg-white px-5 pt-4
+        className="border-t border-sage/40 bg-sage/15 px-5 pt-4
                    pb-[calc(1rem_+_env(safe-area-inset-bottom))]"
       >
         <div className="max-w-2xl mx-auto">
           <div className="flex gap-2 items-end">
             <label htmlFor="weston-input" className="sr-only">
-              Ask about the house
+              What are your questions about this home?
             </label>
             <textarea
               id="weston-input"
@@ -667,9 +667,9 @@ export default function Chat({ slug, listing }) {
                 }
               }}
               rows={1}
-              placeholder="Ask about the house"
+              placeholder="What are your questions about this home?"
               className="font-sans flex-1 resize-none rounded-xl border border-teal/25 px-4 py-3
-                         text-ink placeholder-teal bg-paper text-[15px]
+                         text-ink placeholder-teal bg-white text-[15px]
                          focus:outline-none focus:border-teal/60 leading-relaxed"
             />
             <button
