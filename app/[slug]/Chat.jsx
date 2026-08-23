@@ -50,6 +50,7 @@ export default function Chat({ slug, listing }) {
   const [err, setErr] = useState("");
   const [howOpen, setHowOpen] = useState(false);
   const [slow, setSlow] = useState(false);
+  const [status, setStatus] = useState("");
   const scroll = useRef(null);
   const turnsRef = useRef([]);
 
@@ -62,6 +63,7 @@ export default function Chat({ slug, listing }) {
   useEffect(() => {
     if (!busy) {
       setSlow(false);
+      setStatus("");
       return;
     }
     const t = setTimeout(() => setSlow(true), 1500);
@@ -134,10 +136,12 @@ export default function Chat({ slug, listing }) {
               continue;
             }
             if (msg.error) throw new Error(msg.error);
+            if (msg.status) setStatus(msg.status);
             if (msg.delta) {
               answer += msg.delta;
               if (!started) {
                 started = true;
+                setStatus("");
                 setBusy(false);
                 setTurns((t) => [...t, { who: "weston", text: answer }]);
               } else {
@@ -380,9 +384,9 @@ export default function Chat({ slug, listing }) {
                   style={{ animationDelay: `${i * 0.18}s` }}
                 />
               ))}
-              {slow && (
-                <span className="font-sans text-teal text-[13px] ml-2">
-                  Looking into it&hellip;
+              {(status || slow) && (
+                <span className="font-sans text-teal text-[13px] ml-2 truncate">
+                  {status || "Looking into it\u2026"}
                 </span>
               )}
             </div>

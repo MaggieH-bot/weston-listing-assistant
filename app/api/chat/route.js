@@ -121,6 +121,7 @@ export async function POST(req) {
         let raw = "";
         let sentLen = 0;
         let sawSearchCall = false;
+        let lastStatus = null;
         try {
           for await (const event of stream) {
             if (event.type === "response.output_text.delta" && event.delta) {
@@ -131,10 +132,29 @@ export async function POST(req) {
                 sentLen = safe.length;
               }
             } else if (
-              event.type === "response.output_item.done" &&
-              event.item?.type === "web_search_call"
+              event.item?.type === "web_search_call" &&
+              (event.type === "response.output_item.added" ||
+                event.type === "response.output_item.done")
             ) {
               sawSearchCall = true;
+              // Grok emits nothing readable until every tool call finishes,
+              // which can be a minute. Stream what it is doing so the wait
+              // shows work instead of an empty screen.
+              const a = event.item.action || {};
+              let status = null;
+              if (a.type === "search" && a.query) {
+                status = "Searching: " + String(a.query).slice(0, 70);
+              } else if (a.type === "open_page" && a.url) {
+                try {
+                  status = "Reading " + new URL(a.url).hostname.replace(/^www\./, "");
+                } catch {
+                  status = "Reading a page";
+                }
+              }
+              if (status && status !== lastStatus) {
+                lastStatus = status;
+                send({ status });
+              }
             }
           }
           // Flush anything held back, then the metadata the UI needs.
