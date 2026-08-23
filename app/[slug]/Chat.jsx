@@ -388,13 +388,14 @@ export default function Chat({ slug, listing }) {
 
       <main ref={scroll} className="flex-1 overflow-y-auto px-5 py-6">
         <div className="max-w-2xl mx-auto space-y-5" aria-live="polite">
-          {showForm && (
+          {showForm ? (
             <LeadForm
               slug={slug}
               listing={listing}
               onClose={() => setShowForm(false)}
             />
-          )}
+          ) : (
+          <>
 
           {turns.length === 0 ? (
             <div>
@@ -577,9 +578,12 @@ export default function Chat({ slug, listing }) {
           )}
 
           {err && <p className="font-sans text-teal text-sm py-2">{err}</p>}
+          </>
+          )}
         </div>
       </main>
 
+      {!showForm && (
       <footer
         className="border-t border-teal/15 bg-white px-5 pt-4
                    pb-[calc(1rem_+_env(safe-area-inset-bottom))]"
@@ -640,6 +644,7 @@ export default function Chat({ slug, listing }) {
           </p>
         </div>
       </footer>
+      )}
     </div>
   );
 }
