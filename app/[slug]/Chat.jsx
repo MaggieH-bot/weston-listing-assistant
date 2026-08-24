@@ -135,16 +135,16 @@ function LeadForm({ slug, listing, onClose }) {
 
   return (
     <div className="pb-6 mb-6 border-b border-teal/12">
-      <div className="grid gap-5 sm:grid-cols-[1fr_18rem] sm:items-start">
-        <form onSubmit={submit} className="font-sans">
-          <h2 className="font-serif text-ink text-[22px] leading-tight">
-            Tell us about your home search
-          </h2>
-          <p className="text-teal text-sm mt-1 leading-relaxed">
-            {listing.address}
-          </p>
+      <h2 className="font-serif text-ink text-[22px] leading-tight">
+        Tell us about your home search
+      </h2>
+      <p className="font-sans text-teal text-sm mt-1 mb-4 leading-relaxed">
+        {listing.address}
+      </p>
 
-          <div className="mt-4 space-y-3">
+      <div className="grid gap-5 sm:grid-cols-[1fr_18rem] sm:items-stretch">
+        <form onSubmit={submit} className="font-sans">
+          <div className="space-y-3">
             <div>
               <label htmlFor="lead-name" className="sr-only">Your name</label>
               <input id="lead-name" required value={f.name} onChange={set("name")}
@@ -237,7 +237,7 @@ function LeadForm({ slug, listing, onClose }) {
         </form>
 
         {(listing.formImage || listing.heroImage) && (
-          <div className="relative w-full aspect-[3/2] sm:aspect-[4/5] rounded-2xl overflow-hidden bg-sage/15">
+          <div className="relative w-full aspect-[3/2] sm:aspect-auto sm:h-full sm:min-h-full rounded-2xl overflow-hidden bg-sage/15">
             <Image
               src={listing.formImage || listing.heroImage}
               alt={`${listing.address}, ${listing.city}`}
