@@ -409,7 +409,9 @@ export default function Chat({ slug, listing }) {
             <div>
               <h1 className="text-teal text-xl leading-none">Weston</h1>
               <p className="font-sans text-teal text-[12px] mt-0.5 leading-snug">
-                15 West Homes&rsquo; assistant for this home. Ask me anything.
+                Hi <span aria-hidden="true">&#128075;</span> I&rsquo;m Weston,
+                15 West Homes&rsquo; listing assistant. I&rsquo;m here to answer any
+                questions you have about this home.
               </p>
             </div>
           </div>
