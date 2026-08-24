@@ -135,6 +135,17 @@ function LeadForm({ slug, listing, onClose }) {
 
   return (
     <div className="pb-6 mb-6 border-b border-teal/12">
+      <button
+        type="button"
+        onClick={onClose}
+        className="font-sans inline-flex items-center gap-1.5 text-teal text-sm mb-4
+                   underline underline-offset-2 decoration-teal/40
+                   hover:text-tealdark hover:decoration-tealdark transition rounded-sm
+                   focus:outline-none focus-visible:ring-2 focus-visible:ring-olive"
+      >
+        &larr; Back to Weston
+      </button>
+
       <h2 className="font-serif text-ink text-[22px] leading-tight">
         Tell us about your home search
       </h2>
@@ -142,7 +153,7 @@ function LeadForm({ slug, listing, onClose }) {
         {listing.address}
       </p>
 
-      <div className="grid gap-5 sm:grid-cols-[1fr_18rem] sm:items-stretch">
+      <div className="grid gap-5 sm:grid-cols-[1fr_18rem] sm:items-start">
         <form onSubmit={submit} className="font-sans">
           <div className="space-y-3">
             <div>
@@ -237,7 +248,7 @@ function LeadForm({ slug, listing, onClose }) {
         </form>
 
         {(listing.formImage || listing.heroImage) && (
-          <div className="relative w-full aspect-[3/2] sm:aspect-auto sm:h-full sm:min-h-full rounded-2xl overflow-hidden bg-sage/15">
+          <div className="relative w-full aspect-[3/2] rounded-2xl overflow-hidden bg-sage/15">
             <Image
               src={listing.formImage || listing.heroImage}
               alt={`${listing.address}, ${listing.city}`}
