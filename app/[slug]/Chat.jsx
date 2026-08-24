@@ -422,7 +422,40 @@ export default function Chat({ slug, listing }) {
               <p className="font-sans text-teal text-[12px] mt-0.5 leading-snug">
                 Hi <span aria-hidden="true">&#128075;</span> I&rsquo;m Weston,
                 15 West Homes&rsquo; listing assistant. I&rsquo;m here to answer any
-                questions you have about this home.
+                questions you have about this home.{" "}
+                <button
+                  type="button"
+                  onClick={() => setHowOpen((o) => !o)}
+                  aria-expanded={howOpen}
+                  aria-controls="weston-how"
+                  className="underline underline-offset-2 decoration-teal/40 text-teal
+                             hover:text-tealdark hover:decoration-tealdark transition
+                             rounded-sm focus:outline-none focus-visible:ring-2
+                             focus-visible:ring-olive"
+                >
+                  Tap to see how I work
+                </button>
+              </p>
+            </div>
+          </div>
+
+          <div
+            id="weston-how"
+            aria-hidden={!howOpen}
+            className={`grid transition-all duration-200 ease-out ${
+              howOpen
+                ? "grid-rows-[1fr] opacity-100 mt-3"
+                : "grid-rows-[0fr] opacity-0"
+            }`}
+          >
+            <div className="overflow-hidden">
+              <p className="text-ink/85 leading-relaxed border-l-2 border-sage/60 pl-4 py-1">
+                I answer from the seller&rsquo;s verified facts for this listing
+                &mdash; taxes, HOA dues, systems, schools, what&rsquo;s nearby. I
+                won&rsquo;t guess, and I won&rsquo;t give opinions on the
+                neighborhood, the schools, or what the house is worth. When I
+                don&rsquo;t have something, I&rsquo;ll say so and connect you with
+                Maggie.
               </p>
             </div>
           </div>
@@ -498,46 +531,11 @@ export default function Chat({ slug, listing }) {
                 )}
               </div>
 
-              <p className="text-teal leading-relaxed">
-                Hi, I&rsquo;m Weston &mdash; 15 West Homes&rsquo; listing assistant for
-                this home. Ask me anything, or{" "}
-                <button
-                  type="button"
-                  onClick={() => setHowOpen((o) => !o)}
-                  aria-expanded={howOpen}
-                  aria-controls="weston-how"
-                  className="underline underline-offset-2 decoration-teal/40 text-teal
-                             hover:text-tealdark hover:decoration-tealdark transition
-                             rounded-sm focus:outline-none focus-visible:ring-2
-                             focus-visible:ring-olive"
-                >
-                  tap here to see how I work
-                </button>
-                .
+              <p className="font-sans text-teal text-sm mt-6">
+                Some question suggestions for you
               </p>
 
-              <div
-                id="weston-how"
-                aria-hidden={!howOpen}
-                className={`grid transition-all duration-200 ease-out ${
-                  howOpen
-                    ? "grid-rows-[1fr] opacity-100 mt-3"
-                    : "grid-rows-[0fr] opacity-0"
-                }`}
-              >
-                <div className="overflow-hidden">
-                  <p className="text-ink/85 leading-relaxed border-l-2 border-sage/60 pl-4 py-1">
-                    I answer from the seller&rsquo;s verified facts for this listing
-                    &mdash; taxes, HOA dues, systems, schools, what&rsquo;s nearby. I
-                    won&rsquo;t guess, and I won&rsquo;t give opinions on the
-                    neighborhood, the schools, or what the house is worth. When I
-                    don&rsquo;t have something, I&rsquo;ll say so and connect you with
-                    Maggie.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-5 flex flex-wrap gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 {listing.starters.map((s) => (
                   <button
                     key={s}
@@ -677,11 +675,11 @@ export default function Chat({ slug, listing }) {
 
       {!showForm && (
       <footer
-        className="border-t border-sage/60 bg-sage/30 shadow-[0_-6px_16px_-6px_rgba(55,70,75,0.18)] px-5 pt-4
+        className="border-t-4 border-olive bg-teal shadow-[0_-8px_20px_-6px_rgba(55,70,75,0.35)] px-5 pt-4
                    pb-[calc(1rem_+_env(safe-area-inset-bottom))]"
       >
         <div className="max-w-2xl mx-auto">
-          <p className="font-sans text-ink text-[13px] mb-2">
+          <p className="font-sans text-white text-[15px] font-semibold mb-2.5">
             Let me know what questions you have about this home
           </p>
           <div className="flex gap-2 items-end">
@@ -720,24 +718,24 @@ export default function Chat({ slug, listing }) {
               &rarr;
             </button>
           </div>
-          <div className="font-sans text-[11px] mt-3 leading-relaxed">
-            <span className="text-ink">Maggie Hatfield, 15 West Homes</span>
-            <span className="text-teal"> &middot; </span>
+          <div className="font-sans text-[11px] mt-3 leading-relaxed text-white/85">
+            <span className="text-white">Maggie Hatfield, 15 West Homes</span>
+            <span className="text-white/70"> &middot; </span>
             <a
               href="tel:+15712930334"
-              className="text-teal underline underline-offset-2 hover:text-tealdark
+              className="text-white underline underline-offset-2 hover:text-sage
                          rounded-sm focus:outline-none focus-visible:ring-2
                          focus-visible:ring-olive"
             >
               571-293-0334
             </a>
-            <span className="text-teal">
+            <span className="text-white/85">
               {" "}
               &middot; VA Lic. #0225228923 &middot; MLS# {listing.mls}
             </span>
           </div>
 
-          <p className="font-sans text-teal text-[11px] mt-3 leading-relaxed">
+          <p className="font-sans text-white/80 text-[11px] mt-3 leading-relaxed">
             Information deemed reliable but not guaranteed. Buyer to verify. Equal
             Housing Opportunity. 15 West Homes, brokered by Samson Properties.
           </p>
