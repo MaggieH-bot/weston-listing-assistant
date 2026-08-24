@@ -135,7 +135,7 @@ function LeadForm({ slug, listing, onClose }) {
 
   return (
     <div className="pb-6 mb-6 border-b border-teal/12">
-      <div className="grid gap-5">
+      <div className="grid gap-5 sm:grid-cols-[1fr_18rem] sm:items-start">
         <form onSubmit={submit} className="font-sans">
           <h2 className="font-serif text-ink text-[22px] leading-tight">
             Tell us about your home search
@@ -237,13 +237,13 @@ function LeadForm({ slug, listing, onClose }) {
         </form>
 
         {(listing.formImage || listing.heroImage) && (
-          <div className="relative w-full aspect-[3/2] rounded-2xl overflow-hidden bg-sage/15">
+          <div className="relative w-full aspect-[3/2] sm:aspect-[4/5] rounded-2xl overflow-hidden bg-sage/15">
             <Image
               src={listing.formImage || listing.heroImage}
               alt={`${listing.address}, ${listing.city}`}
               fill
               quality={90}
-              sizes="(max-width: 672px) 100vw, 672px"
+              sizes="(max-width: 640px) 100vw, 576px"
               className="object-cover"
             />
           </div>
@@ -409,7 +409,7 @@ export default function Chat({ slug, listing }) {
             <div>
               <h1 className="text-teal text-xl leading-none">Weston</h1>
               <p className="font-sans text-teal text-[11px] mt-1 uppercase tracking-[0.1em]">
-                {listing.address} &middot; {listing.city.split(",")[0]}
+                15 West Homes
               </p>
             </div>
           </div>
@@ -448,7 +448,7 @@ export default function Chat({ slug, listing }) {
                       alt={`${listing.address}, ${listing.city}`}
                       fill
                       priority
-                      sizes="(max-width: 672px) 100vw, 672px"
+                      sizes="(max-width: 640px) 100vw, 576px"
                       className="object-cover"
                     />
                   </div>
@@ -484,54 +484,6 @@ export default function Chat({ slug, listing }) {
                   <p className="text-ink mt-5 leading-relaxed">{listing.openHouse}</p>
                 )}
               </div>
-
-              {listing.floorPlans?.length > 0 && (
-                <div className="mb-6">
-                  <p className="font-sans text-teal text-sm mb-2">Floor plans</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {listing.floorPlans.map((fp) => (
-                      <a
-                        key={fp.src}
-                        href={fp.src}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group rounded-lg overflow-hidden border border-teal/25
-                                   focus:outline-none focus-visible:ring-2 focus-visible:ring-olive"
-                      >
-                        <span className="relative block w-full aspect-[3/2] bg-white">
-                          <Image
-                            src={fp.src}
-                            alt={`${listing.address} floor plan, ${fp.label}`}
-                            fill
-                            sizes="(max-width: 672px) 33vw, 220px"
-                            className="object-contain p-1"
-                          />
-                        </span>
-                        <span className="font-sans block text-teal text-[11px] px-2 py-1.5
-                                         border-t border-teal/15 group-hover:bg-teal/5 transition">
-                          {fp.label}
-                        </span>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {listing.fullGalleryUrl && (
-                <div className="mb-6">
-                  <a
-                    href={listing.fullGalleryUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-sans text-sm inline-block underline underline-offset-2
-                               decoration-teal/40 text-teal hover:text-tealdark
-                               hover:decoration-tealdark transition rounded-sm
-                               focus:outline-none focus-visible:ring-2 focus-visible:ring-olive"
-                  >
-                    View full photo gallery &rarr;
-                  </a>
-                </div>
-              )}
 
               <p className="text-teal leading-relaxed">
                 Hi, I&rsquo;m Weston &mdash; 15 West Homes&rsquo; listing assistant for
@@ -585,6 +537,55 @@ export default function Chat({ slug, listing }) {
                   </button>
                 ))}
               </div>
+
+              {listing.floorPlans?.length > 0 && (
+                <div className="mb-6">
+                  <p className="font-sans text-teal text-sm mb-2">Floor plans</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {listing.floorPlans.map((fp) => (
+                      <a
+                        key={fp.src}
+                        href={fp.src}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group rounded-lg overflow-hidden border border-teal/25
+                                   focus:outline-none focus-visible:ring-2 focus-visible:ring-olive"
+                      >
+                        <span className="relative block w-full aspect-[3/2] bg-white">
+                          <Image
+                            src={fp.src}
+                            alt={`${listing.address} floor plan, ${fp.label}`}
+                            fill
+                            sizes="(max-width: 672px) 33vw, 220px"
+                            className="object-contain p-1"
+                          />
+                        </span>
+                        <span className="font-sans block text-teal text-[11px] px-2 py-1.5
+                                         border-t border-teal/15 group-hover:bg-teal/5 transition">
+                          {fp.label}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {listing.fullGalleryUrl && (
+                <div className="mb-6">
+                  <a
+                    href={listing.fullGalleryUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-sans text-sm inline-block underline underline-offset-2
+                               decoration-teal/40 text-teal hover:text-tealdark
+                               hover:decoration-tealdark transition rounded-sm
+                               focus:outline-none focus-visible:ring-2 focus-visible:ring-olive"
+                  >
+                    View full photo gallery &rarr;
+                  </a>
+                </div>
+              )}
+
             </div>
           ) : (
             <div
