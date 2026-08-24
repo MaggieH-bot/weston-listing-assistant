@@ -138,7 +138,7 @@ function LeadForm({ slug, listing, onClose }) {
       <div className="grid gap-5">
         <form onSubmit={submit} className="font-sans">
           <h2 className="font-serif text-ink text-[22px] leading-tight">
-            Open house sign-in
+            Contact Maggie
           </h2>
           <p className="text-teal text-sm mt-1 leading-relaxed">
             {listing.address}
@@ -669,7 +669,7 @@ export default function Chat({ slug, listing }) {
         <div className="max-w-2xl mx-auto">
           <div className="flex gap-2 items-end">
             <label htmlFor="weston-input" className="sr-only">
-              What are your questions about this home?
+              Let me know what questions you have about this home
             </label>
             <textarea
               id="weston-input"
@@ -682,7 +682,7 @@ export default function Chat({ slug, listing }) {
                 }
               }}
               rows={1}
-              placeholder="What are your questions about this home?"
+              placeholder="Let me know what questions you have about this home"
               className="font-sans flex-1 resize-none rounded-xl border border-teal/25 px-4 py-3
                          text-ink placeholder-teal bg-white text-[15px]
                          focus:outline-none focus:border-teal/60 leading-relaxed"
