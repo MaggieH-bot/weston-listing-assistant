@@ -131,7 +131,7 @@ export async function POST(req) {
       `ASKED FOR: ${asked}`,
       listing.statusNote ? `(${listing.statusNote})` : null,
       "",
-      `Signed in at: ${tag}`,
+      `Interested in: ${tag}`,
       listing.mls ? `MLS#: ${listing.mls}` : null,
       "",
       `Name:  ${name}`,
@@ -208,7 +208,7 @@ export async function POST(req) {
           from: `Weston - 15 West Homes <${GMAIL_USER}>`,
           to: LEAD_TO.join(", "),
           replyTo: email,
-          subject: `${asked} - ${name} - ${listing.address}`,
+          subject: `New lead: ${name}${autoSearch ? " (wants auto search)" : ""} - ${listing.address}`,
           text: body,
         });
         return Response.json({ ok: true });
@@ -238,7 +238,7 @@ export async function POST(req) {
         from: LEAD_FROM,
         to: RESEND_TO,
         reply_to: email,
-        subject: `${asked} - ${name} - ${listing.address}`,
+        subject: `New lead: ${name}${autoSearch ? " (wants auto search)" : ""} - ${listing.address}`,
         text: body,
       }),
     });
