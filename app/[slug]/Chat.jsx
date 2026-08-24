@@ -408,8 +408,8 @@ export default function Chat({ slug, listing }) {
             <div className="w-px h-8 bg-teal/15" />
             <div>
               <h1 className="text-teal text-xl leading-none">Weston</h1>
-              <p className="font-sans text-teal text-[11px] mt-1 uppercase tracking-[0.1em]">
-                15 West Homes
+              <p className="font-sans text-teal text-[12px] mt-0.5 leading-snug">
+                15 West Homes&rsquo; assistant for this home. Ask me anything.
               </p>
             </div>
           </div>
