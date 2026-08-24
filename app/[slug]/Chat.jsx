@@ -693,10 +693,14 @@ export default function Chat({ slug, listing }) {
             <button
               onClick={() => ask(input)}
               disabled={busy || !input.trim()}
-              className="w-11 h-11 rounded-xl bg-teal text-white flex items-center
-                         justify-center shrink-0 disabled:opacity-30 hover:bg-tealdark
-                         transition focus:outline-none focus-visible:ring-2
-                         focus-visible:ring-offset-2 focus-visible:ring-olive"
+              className={`w-11 h-11 rounded-xl text-white flex items-center
+                         justify-center shrink-0 transition focus:outline-none
+                         focus-visible:ring-2 focus-visible:ring-offset-2
+                         focus-visible:ring-olive ${
+                           busy || !input.trim()
+                             ? "bg-teal/30 cursor-default"
+                             : "bg-olive hover:opacity-90"
+                         }`}
               aria-label="Send"
             >
               &rarr;
