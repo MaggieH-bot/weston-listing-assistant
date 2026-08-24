@@ -138,7 +138,7 @@ function LeadForm({ slug, listing, onClose }) {
       <div className="grid gap-5">
         <form onSubmit={submit} className="font-sans">
           <h2 className="font-serif text-ink text-[22px] leading-tight">
-            Contact Maggie
+            Tell us about your home search
           </h2>
           <p className="text-teal text-sm mt-1 leading-relaxed">
             {listing.address}
@@ -663,10 +663,13 @@ export default function Chat({ slug, listing }) {
 
       {!showForm && (
       <footer
-        className="border-t border-sage/40 bg-sage/15 px-5 pt-4
+        className="border-t border-sage/60 bg-sage/30 shadow-[0_-6px_16px_-6px_rgba(55,70,75,0.18)] px-5 pt-4
                    pb-[calc(1rem_+_env(safe-area-inset-bottom))]"
       >
         <div className="max-w-2xl mx-auto">
+          <p className="font-sans text-ink text-[13px] mb-2">
+            Let me know what questions you have about this home
+          </p>
           <div className="flex gap-2 items-end">
             <label htmlFor="weston-input" className="sr-only">
               Let me know what questions you have about this home
@@ -682,7 +685,7 @@ export default function Chat({ slug, listing }) {
                 }
               }}
               rows={1}
-              placeholder="Let me know what questions you have about this home"
+              placeholder="Type your question"
               className="font-sans flex-1 resize-none rounded-xl border border-teal/25 px-4 py-3
                          text-ink placeholder-teal bg-white text-[15px]
                          focus:outline-none focus:border-teal/60 leading-relaxed"
