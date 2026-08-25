@@ -139,7 +139,7 @@ function LeadForm({ slug, listing, onClose }) {
       <button
         type="button"
         onClick={onClose}
-        className="font-sans inline-flex items-center gap-1.5 text-teal text-sm mb-4
+        className="font-sans inline-flex items-center gap-1.5 text-teal text-sm mb-3
                    underline underline-offset-2 decoration-teal/40
                    hover:text-tealdark hover:decoration-tealdark transition rounded-sm
                    focus:outline-none focus-visible:ring-2 focus-visible:ring-olive"
@@ -150,13 +150,13 @@ function LeadForm({ slug, listing, onClose }) {
       <h2 className="font-serif text-ink text-[22px] leading-tight">
         Tell us about your home search
       </h2>
-      <p className="font-sans text-teal text-sm mt-1 mb-4 leading-relaxed">
+      <p className="font-sans text-teal text-sm mt-1 mb-3 leading-relaxed">
         {listing.address}
       </p>
 
-      <div className="grid gap-5 sm:grid-cols-[1fr_16rem] sm:items-start">
+      <div className="grid gap-4 sm:grid-cols-[1fr_16rem] sm:items-start">
         <form onSubmit={submit} className="font-sans">
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <div>
               <label htmlFor="lead-name" className="sr-only">Your name</label>
               <input id="lead-name" required value={f.name} onChange={set("name")}
@@ -207,7 +207,7 @@ function LeadForm({ slug, listing, onClose }) {
             </div>
           </div>
 
-          <label className="flex gap-2.5 mt-4 text-ink text-sm leading-relaxed">
+          <label className="flex gap-2.5 mt-3 text-ink text-sm leading-relaxed">
             <input type="checkbox" checked={f.autoSearch} onChange={set("autoSearch")}
               className="mt-0.5 shrink-0 accent-olive" />
             <span>
@@ -216,7 +216,7 @@ function LeadForm({ slug, listing, onClose }) {
             </span>
           </label>
 
-          <label className="flex gap-2.5 mt-4 text-ink text-sm leading-relaxed">
+          <label className="flex gap-2.5 mt-3 text-ink text-sm leading-relaxed">
             <input type="checkbox" checked={f.consent} onChange={set("consent")}
               className="mt-0.5 shrink-0 accent-olive" />
             <span>
@@ -249,7 +249,7 @@ function LeadForm({ slug, listing, onClose }) {
 
           {err && <p className="text-teal text-sm mt-3">{err}</p>}
 
-          <div className="flex items-center gap-4 mt-5">
+          <div className="flex items-center gap-4 mt-4">
             <button type="submit" disabled={sending}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg
                          bg-olive text-white text-sm hover:opacity-90 transition
