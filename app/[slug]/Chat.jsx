@@ -441,6 +441,7 @@ export default function Chat({ slug, listing }) {
             <div className="w-px h-8 bg-teal/15" />
             <div>
               <h1 className="text-teal text-xl leading-none">Weston</h1>
+              {!showForm && (
               <p className="font-sans text-teal text-[12px] mt-0.5 leading-snug">
                 Hi <span aria-hidden="true">&#128075;</span> I&rsquo;m Weston,
                 15 West Homes&rsquo; listing assistant. I&rsquo;m here to answer any
@@ -458,9 +459,11 @@ export default function Chat({ slug, listing }) {
                   Tap to see how I work
                 </button>
               </p>
+              )}
             </div>
           </div>
 
+          {!showForm && (
           <div
             id="weston-how"
             aria-hidden={!howOpen}
@@ -481,7 +484,9 @@ export default function Chat({ slug, listing }) {
               </p>
             </div>
           </div>
+          )}
 
+          {!showForm && (
           <button
             type="button"
             onClick={() => setShowForm(true)}
@@ -492,6 +497,7 @@ export default function Chat({ slug, listing }) {
           >
             {listing.ctaLabel} &rarr;
           </button>
+          )}
         </div>
       </header>
 
