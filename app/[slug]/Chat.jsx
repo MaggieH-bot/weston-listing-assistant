@@ -253,8 +253,11 @@ function LeadForm({ slug, listing, onClose }) {
               src={listing.formImage || listing.heroImage}
               alt={`${listing.address}, ${listing.city}`}
               fill
-              quality={90}
-              sizes="100vw"
+              // unoptimized: the source is 1200x800 and 244KB. Letting srcset
+              // pick a variant kept serving ~400px into a 353px box, which is
+              // upscaled and soft on a retina screen. Serving the original is
+              // cheaper than the churn and sharp at any pixel ratio.
+              unoptimized
               className="object-cover"
             />
           </div>
