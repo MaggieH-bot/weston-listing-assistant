@@ -73,6 +73,7 @@ function LeadForm({ slug, listing, onClose }) {
     consent: false,
   });
   const [sending, setSending] = useState(false);
+  const [legalOpen, setLegalOpen] = useState(false);
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState("");
 
@@ -153,7 +154,7 @@ function LeadForm({ slug, listing, onClose }) {
         {listing.address}
       </p>
 
-      <div className="grid gap-5">
+      <div className="grid gap-5 sm:grid-cols-[1fr_16rem] sm:items-start">
         <form onSubmit={submit} className="font-sans">
           <div className="space-y-3">
             <div>
@@ -215,18 +216,36 @@ function LeadForm({ slug, listing, onClose }) {
             </span>
           </label>
 
-          <label className="flex gap-2.5 mt-4 text-teal text-[11px] leading-relaxed">
+          <label className="flex gap-2.5 mt-4 text-ink text-sm leading-relaxed">
             <input type="checkbox" checked={f.consent} onChange={set("consent")}
               className="mt-0.5 shrink-0 accent-olive" />
             <span>
+              I agree to be contacted, including by call and text.{" "}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setLegalOpen((o) => !o);
+                }}
+                className="underline underline-offset-2 decoration-teal/40 text-teal
+                           hover:text-tealdark transition rounded-sm
+                           focus:outline-none focus-visible:ring-2 focus-visible:ring-olive"
+              >
+                {legalOpen ? "Hide details" : "Details"}
+              </button>
+            </span>
+          </label>
+
+          {legalOpen && (
+            <p className="text-teal text-[11px] leading-relaxed mt-2 pl-6">
               By checking this box, I agree by electronic signature to receive
               recurring marketing communication from or on behalf of Maggie
               Hatfield, including auto-dialed calls, texts, and prerecorded
               messages (consent not required to make a purchase; data rates may
               apply; reply STOP to opt-out of texts or HELP for help). I
               understand that I can call 571-293-0334 to obtain direct assistance.
-            </span>
-          </label>
+            </p>
+          )}
 
           {err && <p className="text-teal text-sm mt-3">{err}</p>}
 
@@ -248,7 +267,7 @@ function LeadForm({ slug, listing, onClose }) {
         </form>
 
         {(listing.formImage || listing.heroImage) && (
-          <div className="relative w-full aspect-[3/2] rounded-2xl overflow-hidden bg-sage/15">
+          <div className="relative hidden sm:block w-full aspect-[3/2] rounded-2xl overflow-hidden bg-sage/15">
             <Image
               src={listing.formImage || listing.heroImage}
               alt={`${listing.address}, ${listing.city}`}
