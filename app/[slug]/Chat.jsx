@@ -153,7 +153,7 @@ function LeadForm({ slug, listing, onClose }) {
         {listing.address}
       </p>
 
-      <div className="grid gap-5 sm:grid-cols-[1fr_18rem] sm:items-start">
+      <div className="grid gap-5">
         <form onSubmit={submit} className="font-sans">
           <div className="space-y-3">
             <div>
@@ -254,7 +254,7 @@ function LeadForm({ slug, listing, onClose }) {
               alt={`${listing.address}, ${listing.city}`}
               fill
               quality={90}
-              sizes="(max-width: 640px) 100vw, 576px"
+              sizes="100vw"
               className="object-cover"
             />
           </div>
@@ -494,7 +494,7 @@ export default function Chat({ slug, listing }) {
                       alt={`${listing.address}, ${listing.city}`}
                       fill
                       priority
-                      sizes="(max-width: 640px) 100vw, 576px"
+                      sizes="100vw"
                       className="object-cover"
                     />
                   </div>
