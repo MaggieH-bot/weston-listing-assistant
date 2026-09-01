@@ -22,7 +22,7 @@ export function generateMetadata({ params }) {
   // fetch this directly and do not go through next/image, so it has to be
   // small on its own: the 6000x4000 original is 13.9MB, over FB/Twitter caps.
   const image = {
-    url: `${base}/og-hero.jpg`,
+    url: `${base}${l.ogImage || "/og-hero.jpg"}`,
     width: 1200,
     height: 630,
   };
