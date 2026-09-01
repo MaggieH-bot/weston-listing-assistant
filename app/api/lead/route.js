@@ -122,7 +122,6 @@ export async function POST(req) {
 
     // The listing tag, so a lead is always attributable to a property.
     const tag = `${listing.address}, ${listing.city}`;
-    const recipients = listing.leadRecipients || LEAD_TO;
 
     // Lead the email with what they actually asked for. The CTA promises a
     // notification when showings open; nothing sends that automatically, so
@@ -207,7 +206,7 @@ export async function POST(req) {
         });
         await transport.sendMail({
           from: `Weston - 15 West Homes <${GMAIL_USER}>`,
-          to: recipients.join(", "),
+          to: LEAD_TO.join(", "),
           replyTo: email,
           subject: `New lead: ${name}${autoSearch ? " (wants auto search)" : ""} - ${listing.address}`,
           text: body,
