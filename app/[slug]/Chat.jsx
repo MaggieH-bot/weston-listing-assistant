@@ -482,7 +482,7 @@ export default function Chat({ slug, listing }) {
                 won&rsquo;t guess, and I won&rsquo;t give opinions on the
                 neighborhood, the schools, or what the house is worth. When I
                 don&rsquo;t have something, I&rsquo;ll say so and connect you with
-                {contactName}.
+                {" "}{contactName}.
               </p>
             </div>
           </div>
