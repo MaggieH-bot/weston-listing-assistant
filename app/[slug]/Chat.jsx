@@ -62,6 +62,7 @@ const PRICES = [
 ];
 
 function LeadForm({ slug, listing, onClose }) {
+  const contactName = listing.buyerContactName || "the 15 West Homes team";
   const [f, setF] = useState({
     name: "",
     email: "",
@@ -113,8 +114,8 @@ function LeadForm({ slug, listing, onClose }) {
       <div className="pb-6 mb-6 border-b border-teal/12">
         <h2 className="text-ink text-[22px] leading-tight">Thank you.</h2>
         <p className="text-teal mt-2 leading-relaxed">
-          That went straight to Maggie. She'll be in touch about{" "}
-          {listing.address}. If you need her sooner, call{" "}
+          That went straight to {contactName}. The 15 West Homes team will follow up about{" "}
+          {listing.address}. If you need the team sooner, call{" "}
           <a href="tel:+15712930334" className={LINK_CLASS}>
             571-293-0334
           </a>
@@ -255,7 +256,7 @@ function LeadForm({ slug, listing, onClose }) {
                          bg-olive text-white text-sm hover:opacity-90 transition
                          disabled:opacity-40 focus:outline-none focus-visible:ring-2
                          focus-visible:ring-offset-2 focus-visible:ring-olive">
-              {sending ? "Sending\u2026" : "Send to Maggie"}
+              {sending ? "Sending\u2026" : `Send to ${contactName}`}
             </button>
             <button type="button" onClick={onClose}
               className="text-sm underline underline-offset-2 decoration-teal/40
@@ -287,6 +288,7 @@ function LeadForm({ slug, listing, onClose }) {
 }
 
 export default function Chat({ slug, listing }) {
+  const contactName = listing.buyerContactName || "the 15 West Homes team";
   const [turns, setTurns] = useState([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -480,7 +482,7 @@ export default function Chat({ slug, listing }) {
                 won&rsquo;t guess, and I won&rsquo;t give opinions on the
                 neighborhood, the schools, or what the house is worth. When I
                 don&rsquo;t have something, I&rsquo;ll say so and connect you with
-                Maggie.
+                {contactName}.
               </p>
             </div>
           </div>
