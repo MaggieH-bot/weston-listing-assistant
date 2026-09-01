@@ -15,7 +15,18 @@ const market = fs.readFileSync(`listings/${marketSlug}.txt`, "utf8");
 
 assert.doesNotMatch(market, /15079 Grace|Waterford|Trex Transcend|septic/i);
 assert.doesNotMatch(grace, /222 West Market|resident frog|DeHart/i);
-assert.match(market, /Charlie needs to answer it/i);
+assert.match(market, /kitchen does not have direct courtyard access/i);
+assert.match(market, /Use 1,732 finished square feet as the current MLS/i);
+assert.match(market, /Tell us about your home search/i);
+assert.equal(getListing(graceSlug).buyerContactName, "Charlie");
+assert.equal(getListing(marketSlug).buyerContactName, "Maggie");
+assert.equal(
+  getListing(marketSlug).ctaLabel,
+  getListing(graceSlug).ctaLabel,
+);
+assert.deepEqual(getListing(marketSlug).leadRecipients, [
+  "maggie@15westhomes.com",
+]);
 
 for (const [slug, listing] of Object.entries(LISTINGS)) {
   assert.ok(fs.existsSync(`listings/${slug}.txt`), `${slug} needs a facts file`);

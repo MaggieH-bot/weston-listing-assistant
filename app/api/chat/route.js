@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
+import { getListing } from "../../../lib/listings";
 
 export const runtime = "nodejs";
 
@@ -19,9 +20,19 @@ const LISTING_DIR = path.join(process.cwd(), "listings");
 const promptCache = {};
 function loadPrompt(slug) {
   if (promptCache[slug]) return promptCache[slug];
+  const listing = getListing(slug);
+  if (!listing) throw new Error("Unknown listing");
   const base = fs.readFileSync(path.join(PROMPT_DIR, "weston-prompt.txt"), "utf8");
   const facts = fs.readFileSync(path.join(LISTING_DIR, `${slug}.txt`), "utf8");
-  const full = `${base}\n\nFACTS\n${facts}`;
+  const contact = [
+    `CONTACT FOR THIS LISTING: ${listing.buyerContactName || "the 15 West Homes team"}`,
+    listing.buyerContactPhone ? `Phone: ${listing.buyerContactPhone}` : null,
+    listing.buyerContactEmail ? `Email: ${listing.buyerContactEmail}` : null,
+    "Use this contact—not a contact named in another listing—whenever the form or an agent is needed.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+  const full = `${base}\n\n${contact}\n\nFACTS\n${facts}`;
   promptCache[slug] = full;
   return full;
 }

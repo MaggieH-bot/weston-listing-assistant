@@ -204,9 +204,13 @@ export async function POST(req) {
           secure: true,
           auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
         });
+        const recipients =
+          Array.isArray(listing.leadRecipients) && listing.leadRecipients.length
+            ? listing.leadRecipients
+            : LEAD_TO;
         await transport.sendMail({
           from: `Weston - 15 West Homes <${GMAIL_USER}>`,
-          to: LEAD_TO.join(", "),
+          to: recipients.join(", "),
           replyTo: email,
           subject: `New lead: ${name}${autoSearch ? " (wants auto search)" : ""} - ${listing.address}`,
           text: body,

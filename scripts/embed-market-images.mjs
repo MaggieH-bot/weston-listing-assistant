@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const assets = ["courtyard", "floorplan-1", "floorplan-2", "og"];
+const assets = ["hero", "courtyard", "floorplan-1", "floorplan-2", "og"];
 
 for (const asset of assets) {
   const source = path.join("public", "listings", "222-west-market-street", `${asset}.jpg`);
