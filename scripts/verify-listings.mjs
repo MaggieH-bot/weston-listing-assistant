@@ -8,6 +8,8 @@ const marketSlug = "222-west-market-street";
 assert.deepEqual(Object.keys(LISTINGS).sort(), [graceSlug, marketSlug].sort());
 assert.equal(getListing(graceSlug).address, "15079 Grace Place");
 assert.equal(getListing(marketSlug).address, "222 West Market Street");
+assert.equal(getListing(marketSlug).buyerContactName, "Maggie");
+assert.deepEqual(getListing(marketSlug).leadRecipients, ["maggie@15westhomes.com"]);
 assert.equal(getListing("missing-listing"), null);
 
 const grace = fs.readFileSync(`listings/${graceSlug}.txt`, "utf8");

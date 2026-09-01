@@ -155,7 +155,19 @@ function LeadForm({ slug, listing, onClose }) {
         {listing.address}
       </p>
 
-      <div className="grid gap-4 sm:grid-cols-[1fr_16rem] sm:items-start">
+      <div className="space-y-4">
+        {(listing.formImage || listing.heroImage) && (
+          <div className="relative w-full aspect-[16/9] sm:aspect-[2/1] max-h-[22rem] rounded-2xl overflow-hidden bg-sage/15">
+            <Image
+              src={listing.formImage || listing.heroImage}
+              alt={`Courtyard at ${listing.address}, ${listing.city}`}
+              fill
+              unoptimized
+              className="object-cover"
+            />
+          </div>
+        )}
+
         <form onSubmit={submit} className="font-sans">
           <div className="space-y-2.5">
             <div>
@@ -267,21 +279,6 @@ function LeadForm({ slug, listing, onClose }) {
           </div>
         </form>
 
-        {(listing.formImage || listing.heroImage) && (
-          <div className="relative hidden sm:block w-full aspect-[3/2] rounded-2xl overflow-hidden bg-sage/15">
-            <Image
-              src={listing.formImage || listing.heroImage}
-              alt={`${listing.address}, ${listing.city}`}
-              fill
-              // unoptimized: the source is 1200x800 and 244KB. Letting srcset
-              // pick a variant kept serving ~400px into a 353px box, which is
-              // upscaled and soft on a retina screen. Serving the original is
-              // cheaper than the churn and sharp at any pixel ratio.
-              unoptimized
-              className="object-cover"
-            />
-          </div>
-        )}
       </div>
     </div>
   );

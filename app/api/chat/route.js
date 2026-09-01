@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
+import { getListing } from "../../../lib/listings";
 
 export const runtime = "nodejs";
 
@@ -21,7 +22,10 @@ function loadPrompt(slug) {
   if (promptCache[slug]) return promptCache[slug];
   const base = fs.readFileSync(path.join(PROMPT_DIR, "weston-prompt.txt"), "utf8");
   const facts = fs.readFileSync(path.join(LISTING_DIR, `${slug}.txt`), "utf8");
-  const full = `${base}\n\nFACTS\n${facts}`;
+  const contactName = getListing(slug)?.buyerContactName || "Charlie";
+  const listingPrompt =
+    contactName === "Charlie" ? base : base.replaceAll("Charlie", contactName);
+  const full = `${listingPrompt}\n\nFACTS\n${facts}`;
   promptCache[slug] = full;
   return full;
 }
