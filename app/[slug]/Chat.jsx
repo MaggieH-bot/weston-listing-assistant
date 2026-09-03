@@ -155,7 +155,7 @@ function LeadForm({ slug, listing, onClose }) {
         {listing.address}
       </p>
 
-      <div className="grid gap-4 sm:grid-cols-[1fr_16rem] sm:items-start">
+      <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(20rem,28rem)] md:items-start">
         <form onSubmit={submit} className="font-sans">
           <div className="space-y-2.5">
             <div>
@@ -270,7 +270,7 @@ function LeadForm({ slug, listing, onClose }) {
         </form>
 
         {(listing.formImage || listing.heroImage) && (
-          <div className="relative hidden sm:block w-full aspect-[3/2] rounded-2xl overflow-hidden bg-sage/15">
+          <div className="relative hidden md:block w-full aspect-[3/2] rounded-2xl overflow-hidden bg-sage/15">
             <Image
               src={listing.formImage || listing.heroImage}
               alt={`${listing.address}, ${listing.city}`}
@@ -506,7 +506,7 @@ export default function Chat({ slug, listing }) {
       </header>
 
       <main ref={scroll} className="flex-1 overflow-y-auto px-5 py-6">
-        <div className="max-w-2xl mx-auto space-y-5" aria-live="polite">
+        <div className={`${showForm ? "max-w-5xl" : "max-w-2xl"} mx-auto space-y-5`} aria-live="polite">
           {showForm ? (
             <LeadForm
               slug={slug}
