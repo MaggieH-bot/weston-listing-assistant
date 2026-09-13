@@ -13,7 +13,7 @@ module.exports = {
         paper: "#FAF9F6",
       },
       fontFamily: {
-        serif: ["Arvo", "Georgia", "serif"],
+        serif: ["Montserrat", "system-ui", "sans-serif"],
         sans: ["Montserrat", "system-ui", "sans-serif"],
       },
     },

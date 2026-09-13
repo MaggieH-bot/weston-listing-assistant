@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "test": "node scripts/verify-listings.mjs",
     "start": "next start"
   },
   "dependencies": {
-    "next": "^16.3.2",
+    "next": "^16.3.5",
+    "nodemailer": "^9.0.5",
     "openai": "^4.68.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

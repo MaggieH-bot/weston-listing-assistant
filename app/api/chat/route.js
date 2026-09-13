@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
+import { getListing } from "../../../lib/listings";
 
 export const runtime = "nodejs";
 
@@ -19,9 +20,19 @@ const LISTING_DIR = path.join(process.cwd(), "listings");
 const promptCache = {};
 function loadPrompt(slug) {
   if (promptCache[slug]) return promptCache[slug];
+  const listing = getListing(slug);
+  if (!listing) throw new Error("Unknown listing");
   const base = fs.readFileSync(path.join(PROMPT_DIR, "weston-prompt.txt"), "utf8");
   const facts = fs.readFileSync(path.join(LISTING_DIR, `${slug}.txt`), "utf8");
-  const full = `${base}\n\nFACTS\n${facts}`;
+  const contact = [
+    `CONTACT FOR THIS LISTING: ${listing.buyerContactName || "the 15 West Homes team"}`,
+    listing.buyerContactPhone ? `Phone: ${listing.buyerContactPhone}` : null,
+    listing.buyerContactEmail ? `Email: ${listing.buyerContactEmail}` : null,
+    "Use this contact—not a contact named in another listing—whenever the form or an agent is needed.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+  const full = `${base}\n\n${contact}\n\nFACTS\n${facts}`;
   promptCache[slug] = full;
   return full;
 }
@@ -76,30 +87,124 @@ export async function POST(req) {
       return Response.json({ error: "Unknown listing." }, { status: 404 });
     }
 
-    const res = await xai.chat.completions.create({
+    // xAI Agent Tools API. Web search lives on /v1/responses, not on
+    // chat/completions (web_search -> 422, live_search -> 410 deprecated).
+    const stream = await xai.responses.create({
       model: MODEL,
-      max_tokens: 1000,
-      messages: [{ role: "system", content: system }, ...trimmed],
+      max_output_tokens: 1000,
+      input: [{ role: "system", content: system }, ...trimmed],
       tools: [{ type: "web_search" }],
+      // Hard cap, because the prompt alone does not hold. Left uncapped it
+      // ran 8-10 searches on a single question, chasing each business one at
+      // a time, and the person waited a minute. The first search or two is
+      // what actually answers; the rest is padding with a latency cost.
+      // max_tool_calls is in xAI's response schema but is NOT honoured on
+      // the request - capped at 3 it still ran 7 searches. Kept as intent.
+      max_tool_calls: 3,
+      // Most of the wait is reasoning before the first tool call (~16s).
+      reasoning: { effort: "low" },
+      stream: true,
     });
 
-    const choice = res.choices?.[0];
-    const text = (choice?.message?.content || "").trim();
+    // Cleanup applied to the running buffer. Same rules as before:
+    // control tokens (<|eos|>), numbered citations "[[1]](url)", [FORM].
+    const CITATION_RE = /\[\[\d+\]\]\(https?:\/\/[^\s)]+\)/;
+    const scrub = (t) =>
+      t
+        .replace(/<\|[^|]*\|>/g, "")
+        .replace(/\s*\[\[\d+\]\]\(https?:\/\/[^\s)]+\)/g, "")
+        .replace(/\[FORM\]/g, "");
 
-    // xAI surfaces a server-side search either as citations on the response
-    // or as a tool call on the message, depending on SDK/model version.
-    // Check both so the "looked this up" note doesn't silently stop firing.
-    const searched = Boolean(
-      (res.citations && res.citations.length) ||
-        (choice?.message?.tool_calls && choice.message.tool_calls.length)
-    );
+    // Never emit a half-written marker. Deltas split mid-token, so "[FORM]"
+    // arrives as "[" then "FORM]" and a citation as "[[" ... "(url)". Emitting
+    // the opening fragment strands it on screen once the complete token is
+    // scrubbed from the buffer. Scan back for the earliest token that has
+    // opened but not closed, and hold everything from there.
+    const holdBack = (t) => {
+      const from = Math.max(0, t.length - 200);
+      for (let i = from; i < t.length; i++) {
+        const tail = t.slice(i);
+        if (tail.startsWith("[[")) {
+          if (!/^\[\[\d+\]\]\([^\s)]*\)/.test(tail)) return t.slice(0, i).replace(/\s+$/, "");
+          continue;
+        }
+        if (tail.startsWith("<|")) {
+          if (!tail.includes("|>")) return t.slice(0, i).replace(/\s+$/, "");
+          continue;
+        }
+        if (tail[0] === "[" && "[FORM]".startsWith(tail)) return t.slice(0, i).replace(/\s+$/, "");
+        if (tail === "<") return t.slice(0, i).replace(/\s+$/, "");
+      }
+      return t;
+    };
 
-    const form = text.includes("[FORM]");
+    const encoder = new TextEncoder();
+    const body = new ReadableStream({
+      async start(controller) {
+        const send = (obj) =>
+          controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"));
+        let raw = "";
+        let sentLen = 0;
+        let sawSearchCall = false;
+        let lastStatus = null;
+        try {
+          for await (const event of stream) {
+            if (event.type === "response.output_text.delta" && event.delta) {
+              raw += event.delta;
+              const safe = holdBack(scrub(raw)).trimStart();
+              if (safe.length > sentLen) {
+                send({ delta: safe.slice(sentLen) });
+                sentLen = safe.length;
+              }
+            } else if (
+              event.item?.type === "web_search_call" &&
+              (event.type === "response.output_item.added" ||
+                event.type === "response.output_item.done")
+            ) {
+              sawSearchCall = true;
+              // Grok emits nothing readable until every tool call finishes,
+              // which can be a minute. Stream what it is doing so the wait
+              // shows work instead of an empty screen.
+              const a = event.item.action || {};
+              let status = null;
+              if (a.type === "search" && a.query) {
+                status = "Searching: " + String(a.query).slice(0, 70);
+              } else if (a.type === "open_page" && a.url) {
+                try {
+                  status = "Reading " + new URL(a.url).hostname.replace(/^www\./, "");
+                } catch {
+                  status = "Reading a page";
+                }
+              }
+              if (status && status !== lastStatus) {
+                lastStatus = status;
+                send({ status });
+              }
+            }
+          }
+          // Flush anything held back, then the metadata the UI needs.
+          const finalText = scrub(raw).trim();
+          if (finalText.length > sentLen) {
+            send({ delta: finalText.slice(sentLen) });
+          }
+          send({
+            done: true,
+            form: raw.includes("[FORM]"),
+            searched: sawSearchCall && CITATION_RE.test(raw),
+          });
+        } catch (e) {
+          console.error("weston stream error", e);
+          send({ error: "Weston is unavailable right now. Try again in a moment." });
+        }
+        controller.close();
+      },
+    });
 
-    return Response.json({
-      text: text.replace(/\[FORM\]/g, "").trim(),
-      form,
-      searched,
+    return new Response(body, {
+      headers: {
+        "Content-Type": "application/x-ndjson; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+      },
     });
   } catch (err) {
     console.error("weston chat error", err);
