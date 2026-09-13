@@ -6,7 +6,8 @@ export function generateStaticParams() {
   return Object.keys(LISTINGS).map((slug) => ({ slug }));
 }
 
-export function generateMetadata({ params }) {
+export async function generateMetadata(props) {
+  const params = await props.params;
   const l = getListing(params.slug);
   if (!l) return { title: "Weston" };
   // Set NEXT_PUBLIC_SITE_URL in Vercel once ask.15westhomes.com resolves.
@@ -17,7 +18,6 @@ export function generateMetadata({ params }) {
   const url = `${base}/${params.slug}`;
   const title = `${l.address} — Weston`;
   const description = `Ask about ${l.address}, ${l.city}.`;
-  // Placeholder card image. Swapped for a real listing photo once photos land.
   // Purpose-built 1.91:1 card cropped from the hero photo. Social scrapers
   // fetch this directly and do not go through next/image, so it has to be
   // small on its own: the 6000x4000 original is 13.9MB, over FB/Twitter caps.
@@ -46,7 +46,8 @@ export function generateMetadata({ params }) {
   };
 }
 
-export default function Page({ params }) {
+export default async function Page(props) {
+  const params = await props.params;
   const listing = getListing(params.slug);
   if (!listing) notFound();
   return <Chat slug={params.slug} listing={listing} />;

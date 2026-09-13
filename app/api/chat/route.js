@@ -7,10 +7,14 @@ export const runtime = "nodejs";
 
 // xAI's Grok API is OpenAI-SDK compatible: same client, different base URL
 // and key. https://docs.x.ai/docs/guides/chat-completions
-const xai = new OpenAI({
-  apiKey: process.env.XAI_API_KEY,
-  baseURL: "https://api.x.ai/v1",
-});
+// Constructed on first request so `next build` can collect this route
+// without XAI_API_KEY. The OpenAI SDK throws if apiKey is empty at init.
+function getXai() {
+  return new OpenAI({
+    apiKey: process.env.XAI_API_KEY,
+    baseURL: "https://api.x.ai/v1",
+  });
+}
 const MODEL = process.env.XAI_MODEL || "grok-4.6";
 
 // Prompt and facts are read on the server. They never reach the browser.
@@ -89,7 +93,7 @@ export async function POST(req) {
 
     // xAI Agent Tools API. Web search lives on /v1/responses, not on
     // chat/completions (web_search -> 422, live_search -> 410 deprecated).
-    const stream = await xai.responses.create({
+    const stream = await getXai().responses.create({
       model: MODEL,
       max_output_tokens: 1000,
       input: [{ role: "system", content: system }, ...trimmed],
